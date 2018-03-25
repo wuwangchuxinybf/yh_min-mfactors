@@ -11,11 +11,9 @@ import pickle
 import os
 import statsmodels.api as sm
 
-#os.chdir(r'E:\alpha_min')
-
 #start=time.clock()
 def standard_progress():
-    filenameList = os.listdir(r'E:\alpha_min')
+    filenameList = os.listdir(r'G:\short_period_mf\alpha_min')
 #    filenameList = ['alpha_001.csv']
     for filename in filenameList:
         #首先对因子值进行空值删除和标准化处理
@@ -43,6 +41,13 @@ def standard_progress():
 #        end = time.clock()
     return None
 
+
+#test2 = pd.read_pickle(r'G:\short_period_mf\alpha_min_stand\standard_alpha_001.pickle')
+#test3 = pd.read_csv(r'G:\short_period_mf\alpha_min\alpha_001.csv')
+#stockList
+#sl = test3.iloc[:,0]
+    
+#
 #def Netual_process(alpha_data,industry,saf):
 #    new_data = pd.merge(alpha_data,industry,on = ['code'])
 #    new_data2 = pd.DataFrame(new_data.code)
@@ -68,27 +73,27 @@ def standard_progress():
 #    output.close()    
 #    return None
 
-industry2=pd.read_pickle(r'C:\Users\wuwangchuxin\Desktop\yinhua_min\data\industry.pkl')
-industry3 = industry2.drop_duplicates()
-standard_alpha = os.listdir(r'G:\short_period_mf\alpha_min_stand')
-for saf in standard_alpha:
-    path = r'G:\short_period_mf\alpha_min_stand\%s'%saf
-    IC_computing(path,industry)
-
-
-for saf in standard_alpha:
-    alpha_d = pd.read_pickle(r'G:\short_period_mf\alpha_min_stand\%s'%saf)
-    Netual_process(alpha_d,industry3,saf)
+#industry2=pd.read_pickle(r'C:\Users\wuwangchuxin\Desktop\yinhua_min\data\industry.pkl')
+#industry3 = industry2.drop_duplicates()
+#standard_alpha = os.listdir(r'G:\short_period_mf\alpha_min_stand')
+#for saf in standard_alpha:
+#    path = r'G:\short_period_mf\alpha_min_stand\%s'%saf
+#    IC_computing(path,industry)
 #
+#
+#for saf in standard_alpha:
+#    alpha_d = pd.read_pickle(r'G:\short_period_mf\alpha_min_stand\%s'%saf)
+#    Netual_process(alpha_d,industry3,saf)
+##
 #paths = os.listdir(r'G:\short_period_mf\netual_process')
 #for pat in paths:
 #    IC_computing(pat,industry)
 
 
-industry3.to_csv(r'C:\Users\wuwangchuxin\Desktop\industry3.csv')
-
-alpha_d2.to_csv(r'C:\Users\wuwangchuxin\Desktop\netual_alpha001_part.csv')
-alpha_d2 = alpha_d[:2]
+#industry3.to_csv(r'C:\Users\wuwangchuxin\Desktop\industry3.csv')
+#
+#alpha_d2.to_csv(r'C:\Users\wuwangchuxin\Desktop\netual_alpha001_part.csv')
+#alpha_d2 = alpha_d[:2]
 
 
 

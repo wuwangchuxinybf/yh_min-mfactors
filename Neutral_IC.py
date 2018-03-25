@@ -2,15 +2,15 @@
 
 import os
 import pickle
-import numpy as np
+#import numpy as np
 import pandas as pd
 import statsmodels.api as sm
 
 industry = pd.read_pickle\
-    ('C:/Users/wuwangchuxin/Desktop/yinhua_min/data/industry.pkl').drop_duplicates()
+    (r'G:\short_period_mf\industry.pkl').drop_duplicates()
 
 return_data = pd.read_pickle\
-    ('G:short_period_mf/dailyreturn.pickle').rename(columns={'symbol':'code'})
+    (r'G:\short_period_mf\dailyreturn.pickle').rename(columns={'symbol':'code'})
 
 def resid(x, y):
     return sm.OLS(x, y).fit().resid
@@ -28,22 +28,8 @@ def Neutral_process(alpha_data, saf):
     output.close()
     return X
 
-#def IC_computing(alpha_data, saf):
-#    data = pd.merge(alpha_data,return_data,on = ['code'])
-#    dailyReturn = data.daily_return
-#    factors = Neutral_process(alpha_data,saf)
-#    IC = dailyReturn.corr(factors, method='spearman')
-#    output = open(r'G:/short_period_mf/ic_value/ic_%s'%saf[-16:],'wb')
-#    pickle.dump(IC,output)
-#    output.close()    
-#    return 0
-
-
-################
+#
 standard_alpha = os.listdir(r'G:/short_period_mf/alpha_min_stand')
-#for saf in standard_alpha:
-#    alpha_d = pd.read_pickle(r'G:/short_period_mf/alpha_min_stand/%s'%saf)
-#    IC_computing(alpha_d, saf)
 
 for saf in standard_alpha:
     alpha_d = pd.read_pickle(r'G:/short_period_mf/alpha_min_stand/%s'%saf)
