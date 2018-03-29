@@ -13,6 +13,7 @@ addr_netual_factors = 'G:/short_period_mf/netual_process/'
 addr_mean_alpha = 'G:/short_period_mf/mean_alpha/'
 
 addr_IC_value = 'G:/short_period_mf/IC_value/'
+addr_ICIR_value = 'G:/short_period_mf/ICIR/'
 
 ##计算每个股票往前8小时的滚动收益率
 def cal_8h_return(nhours=8):
@@ -106,5 +107,45 @@ def cal_IC():
     output.close()   
     return 0
 
-IC_val = pd.read_pickle(addr_IC_value+'IC_value.pickle')
-IC_val.to_csv(addr_IC_value+'IC_value.csv')
+#IC_val = pd.read_pickle(addr_IC_value+'IC_value.pickle')
+#IC_val.to_csv(addr_IC_value+'IC_value.csv')
+
+# 计算不同时间尺度的因子IC值和ICIR值
+def cal_ICIR():
+    IC_val = pd.read_pickle(addr_IC_value+'IC_value.pickle')
+    IC_val = IC_val.astype(float)
+    IC_day = IC_val.groupby(lambda x : x[:10]).mean()
+    IC_day.to_csv(addr_IC_value+'IC_day.csv')
+    IC_month = IC_val.groupby(lambda x : x[:7]).mean()
+    IC_month.to_csv(addr_IC_value+'IC_month.csv')
+    ICIR_min = IC_val.apply(lambda x:x.mean()/x.std())
+    ICIR_day = IC_day.apply(lambda x:x.mean()/x.std())
+    ICIR_month = IC_month.apply(lambda x:x.mean()/x.std())
+    ICIR_res = pd.DataFrame([ICIR_min,ICIR_day,ICIR_month],\
+                            index={'ICIR_min','ICIR_day','ICIR_month'}).T
+    ICIR_res.to_csv(addr_ICIR_value+'ICIR_res.csv')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
