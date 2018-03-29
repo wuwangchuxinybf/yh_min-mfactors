@@ -2,6 +2,8 @@ import pandas as pd
 import feather as ft
 import pickle
 import os
+import matplotlib.pyplot as plt
+import numpy as np
 
 addr_origin = 'G:/short_period_mf/'
 
@@ -126,10 +128,15 @@ def cal_ICIR():
     ICIR_res.to_csv(addr_ICIR_value+'ICIR_res.csv')
 
 
+#x=np.linspace(-10,10,500,endpoint=True)
+#plt.plot(ICIR_min)
+#plt.plot(ICIR_day)
+#plt.plot(ICIR_month)
 
-
-
-
+plt.figure(figsize=(20,10))
+plt.plot(ICIR_min,color='red',linewidth=2.5,linestyle='-')
+plt.plot(ICIR_day,color='blue',linewidth=2.5,linestyle='-')
+plt.plot(ICIR_month,color='green',linewidth=2.5,linestyle='-')
 
 
 
