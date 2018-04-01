@@ -10,9 +10,13 @@ import feather as ft
 
 ###############################################################################
 ###############################################################################
+## min
+#minute_file_path = 'G:\\1m_data\\1\\'
+#timeSerialFile=r'G:\short_period_mf\trade.date'
 
-minute_file_path = 'G:\\1m_data\\1\\'
-timeSerialFile=r'C:\Users\wuwangchuxin\Desktop\yinhua_min\data\trade.date'
+## day
+day_file_path = 'G:\\1m_data\\'
+timeSerialFile=r'G:\short_period_mf\trade_day.date'
 
 ###############################################################################
 ###############################################################################
@@ -3310,24 +3314,75 @@ def getMonthTdate(monthStr):
 
 #############################################################
 
-def data_pre(stockList, dateList, path=minute_file_path):
+#def data_pre(stockList, dateList, path=minute_file_path):
+#
+#    df = pd.DataFrame()  
+#    if len(dateList) > 1:
+#        for f in stockList:
+#            fn = f[-2:] + f[:6] + '.feather'
+#            df_0 = ft.read_dataframe(path + fn, nthreads=100).set_index('date')
+#            df_1 = df_0.loc[dateList, :]
+#            df_1['code'] = f
+#            df = df.append(df_1)
+#    else:
+#        for f in stockList:
+#            fn = f[-2:] + f[:6] + '.feather'
+#            df_0 = ft.read_dataframe(path + fn, nthreads=100).set_index('date')
+#            df_1 = df_0.loc[dateList[0], :]
+#            df_1 = df_1.to_frame().T
+#            df_1['code'] = f
+#            df = df.append(df_1)
+#    df['volume'] = df.amount / df.vwap
+#    df['p_change'] = (df.close / df.preClose - 1) * 100
+#    
+#    return df
 
-    df = pd.DataFrame()  
-    if len(dateList) > 1:
-        for f in stockList:
-            fn = f[-2:] + f[:6] + '.feather'
-            df_0 = ft.read_dataframe(path + fn, nthreads=100).set_index('date')
-            df_1 = df_0.loc[dateList, :]
-            df_1['code'] = f
-            df = df.append(df_1)
+# for days
+def poss_date(date):
+    if len(date) == 10:
+        return date[:4]+'-'+date[5:7]+'-'+date[8:]
+    elif len(date) == 8:
+        return date[:4]+'-0'+date[5]+'-0'+date[-1]
+    elif date[-2] == r'/':
+        return date[:4]+'-'+date[5:7]+'-0'+date[-1]
     else:
-        for f in stockList:
-            fn = f[-2:] + f[:6] + '.feather'
-            df_0 = ft.read_dataframe(path + fn, nthreads=100).set_index('date')
-            df_1 = df_0.loc[dateList[0], :]
-            df_1 = df_1.to_frame().T
-            df_1['code'] = f
-            df = df.append(df_1)
+        return date[:4]+'-0'+date[5]+'-'+date[-2:]
+
+def poss_symbol(symbol):
+    if len(str(symbol)) == 1:
+        return '00000'+str(symbol)
+    elif len(str(symbol)) == 2:
+        return '0000'+str(symbol)
+    elif len(str(symbol)) == 3:
+        return '000'+str(symbol)
+    elif len(str(symbol)) == 4:
+        return '00'+str(symbol)
+    elif len(str(symbol)) == 5:
+        return '0'+str(symbol)
+    else:
+        return str(symbol)
+
+def data_pre(stockList, dateList, path=day_file_path):
+
+#    df = pd.DataFrame()  
+#    if len(dateList) > 1:
+#        for f in stockList:
+    fn = 'marketData.csv'
+    mid = pd.read_csv(path + fn)
+    mid['date'] = mid['date'].apply(lambda x : poss_date(x))
+    mid['symbol'] = mid['symbol'].apply(lambda x : poss_symbol(x))
+    df_0 = mid.set_index('date')
+    df = df_0.loc[dateList, :]
+#        df_1['code'] = f
+#            df = df.append(df_1)
+#    else:
+#        for f in stockList:
+#            fn = f[-2:] + f[:6] + '.feather'
+#            df_0 = ft.read_dataframe(path + fn, nthreads=100).set_index('date')
+#            df_1 = df_0.loc[dateList[0], :]
+#            df_1 = df_1.to_frame().T
+#            df_1['code'] = f
+#            df = df.append(df_1)
     df['volume'] = df.amount / df.vwap
     df['p_change'] = (df.close / df.preClose - 1) * 100
     
@@ -3337,7 +3392,8 @@ def generateDataFrame(stockList, dateList, fields, offday):
     fullDate = tDaysOffset(dateList, offday)
     tmp = data_pre(stockList, fullDate)
     tmp = tmp[tmp.amount >= 1]
-    tmp = tmp.pivot(columns='code')
+#    tmp = tmp.pivot(columns='code')
+    tmp = tmp.pivot(columns='symbol')   #  day bar
     field = [item.strip() for item in fields.split(',')]
     result = []
     for f in field:
