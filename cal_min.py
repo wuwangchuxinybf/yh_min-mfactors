@@ -7,7 +7,7 @@ Created on Thu Mar  8 21:49:28 2018
 
 import os
 os.chdir(r'D:\yh_min-mfactors')
-from alphaFuncs import *
+from alphaFuncs_min import *
 import pandas as pd
 
 ################ 因子计算结果没有 '600485.SH'
@@ -21,7 +21,7 @@ code_HS300 = pd.read_excel(r'G:\short_period_mf\data_mkt.xlsx',\
 stockList = list(code_HS300['code'][:])
 # 分钟线：从2017-01-03 09:31:00 至 2018-01-15 15:00:00
 dateList = open(r'G:\short_period_mf\trade.date').read().split('\n')
-alpha_all(stockList, dateList, savepath='G:\\short_period_mf\\alpha_min\\')
+alpha_all(stockList, dateList, savepath='G:\\short_period_mf\\alpha_min_plus\\')
 
 
 

@@ -7,7 +7,7 @@ Created on Sun Apr  1 22:18:07 2018
 
 import os
 os.chdir(r'D:\yh_min-mfactors')
-from alphaFuncs import *
+from alphaFuncs_day import *
 import pandas as pd
 import feather as ft
 
@@ -46,8 +46,9 @@ def creat_dateList():
     dateList_day = list(set(map(lambda x : x[:10],dateList_min)))
     #然后手动复制到'G:\short_period_mf\trade_day.date'里面
     return 0
+
 dateList = open(r'G:\short_period_mf\trade_day.date').read().split('\n')
 
-alpha_all(stockList, dateList, savepath='G:\\short_period_mf\\alpha_day\\')
+alpha_all(stockList, dateList, savepath='G:\\short_period_mf\\alpha_day_plus\\')
 
 
