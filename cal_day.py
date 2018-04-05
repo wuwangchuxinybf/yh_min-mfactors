@@ -6,7 +6,7 @@ Created on Sun Apr  1 22:18:07 2018
 """
 import os
 os.chdir('D:/yh_min-mfactors')
-from alphaFuncs_day_plus import *
+from alphaFuncs_day import *
 import pandas as pd
 import feather as ft
 

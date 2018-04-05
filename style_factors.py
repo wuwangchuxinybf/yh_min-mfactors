@@ -6,6 +6,9 @@ Created on Wed Apr  4 20:56:15 2018
 """
 
 import pandas as pd
+import os
+
+style_factors_files = 'G:/short_period_mf/Barra/'
 
 def poss_symbol(symbol):
     if len(str(symbol)) == 1:
@@ -21,25 +24,20 @@ def poss_symbol(symbol):
     else:
         return str(symbol)
     
-df = pd.read_csv(r'C:\Users\wuwangchuxin\Desktop\yinhua_min\data\Barra\Beta_CNE5_T+1.csv')
-col = list(df.columns)
-col[1:] = map(poss_symbol,col[1:])
-col[0] = 'date' 
-df.columns = col
+filenames = os.listdir(style_factors_files)
+for filename in filenames:
+    df = pd.read_csv(style_factors_files+filename)
+    col = list(df.columns)
+    col[1:] = map(poss_symbol,col[1:])
+    col[0] = 'date' 
+    df.columns = col
+    mid_name = filename[:filename.index('_')]
+    names = locals()
+    names[mid_name] = df
+    df.to_csv('G:/short_period_mf/style_factors/%s.csv'%mid_name)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+# Beta Momentum Size Earnings_Yield Volatilty Growth、Value、Leverage、Liquidity
+#                    EarnYield       ResVol           NLSize
 
 
 
