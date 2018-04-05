@@ -3336,7 +3336,7 @@ def data_pre(stockList, dateList, path=minute_file_path):
 def generateDataFrame(stockList, dateList, fields, offday):
     fullDate = tDaysOffset(dateList, offday)
     tmp = data_pre(stockList, fullDate)
-    tmp = tmp[tmp.amount >= 1]
+    tmp = tmp[tmp.amount >= 1] #####行情数据中600485的amount数据为0，剔除掉；2016-12-23日停牌至今
     tmp = tmp.pivot(columns='code')
     field = [item.strip() for item in fields.split(',')]
     result = []

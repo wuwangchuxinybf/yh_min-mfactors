@@ -11,8 +11,8 @@ import feather as ft
 ###############################################################################
 ###############################################################################
 
-day_file_path = 'G:\\1m_data\\'
-timeSerialFile=r'G:\short_period_mf\trade_day.date'
+day_file_path = 'G:/1m_data/'
+timeSerialFile='G:/short_period_mf/trade_day.date'
 
 ###############################################################################
 ###############################################################################
@@ -3341,13 +3341,31 @@ def data_pre(stockList, dateList, path=day_file_path):
     df = df_0.loc[dateList, :]
     df['volume'] = df.amount / df.vwap
     df['p_change'] = (df.close / df.preClose - 1) * 100
-    
+#test = set(mid['date'])
+#    df = pd.DataFrame()  
+#    if len(dateList) > 1:
+#        for f in stockList:
+#            fn = f[-2:] + f[:6] + '.feather'
+#            df_0 = ft.read_dataframe(path + fn, nthreads=100).set_index('date')
+#            df_1 = df_0.loc[dateList, :]
+#            df_1['code'] = f
+#            df = df.append(df_1)
+#    else:
+#        for f in stockList:
+#            fn = f[-2:] + f[:6] + '.feather'
+#            df_0 = ft.read_dataframe(path + fn, nthreads=100).set_index('date')
+#            df_1 = df_0.loc[dateList[0], :]
+#            df_1 = df_1.to_frame().T
+#            df_1['code'] = f
+#            df = df.append(df_1)
+#    df['volume'] = df.amount / df.vwap
+#    df['p_change'] = (df.close / df.preClose - 1) * 100
     return df
 
 def generateDataFrame(stockList, dateList, fields, offday):
     fullDate = tDaysOffset(dateList, offday)
     tmp = data_pre(stockList, fullDate)
-    tmp = tmp[tmp.amount >= 1]
+    tmp = tmp[tmp.amount >= 1]  #####日行情数据中600485的amount数据为0，剔除掉；2016-12-23日停牌至今
     tmp = tmp.pivot(columns='symbol')   #  day bar
     field = [item.strip() for item in fields.split(',')]
     result = []
