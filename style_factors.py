@@ -8,7 +8,8 @@ Created on Wed Apr  4 20:56:15 2018
 import pandas as pd
 import os
 
-style_factors_files = 'G:/short_period_mf/Barra/'
+style_factors_files = 'G:/1m_data/Barra/'
+Nstyle_factors_files = 'G:/short_period_mf/style_factors/'
 
 def poss_symbol(symbol):
     if len(str(symbol)) == 1:
@@ -34,13 +35,10 @@ for filename in filenames:
     mid_name = filename[:filename.index('_')]
     names = locals()
     names[mid_name] = df
-    df.to_csv('G:/short_period_mf/style_factors/%s.csv'%mid_name)
+    df.to_csv('G:/short_period_mf/style_factors/%s.csv'%mid_name,index = False)
 
-# Beta Momentum Size Earnings_Yield Volatilty Growth、Value、Leverage、Liquidity
+# Beta Momentum Size Earnings_Yield Volatilty Growth Value Leverage Liquidity
 #                    EarnYield       ResVol           NLSize
-
-
-
 
 
 
