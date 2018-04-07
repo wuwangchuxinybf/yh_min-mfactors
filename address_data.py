@@ -20,3 +20,5 @@ add_alpha_min_stand = 'G:/short_period_mf/alpha_min_stand/' #标准化分钟alph
 
 add_style_factors = 'G:/1m_data/Barra/'  # 风格因子原始数据
 add_Nstyle_factors = 'G:/short_period_mf/style_factors/' # 风格因子处理后数据
+
+add_resid_value = 'G:/short_period_mf/resid_value/' # 单因子残差值
