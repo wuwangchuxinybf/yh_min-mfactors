@@ -11,8 +11,8 @@ import feather as ft
 ###############################################################################
 ###############################################################################
 
-day_file_path = 'G:/1m_data/'
-timeSerialFile='G:/short_period_mf/trade_day.date'
+add_day_file = 'G:/1m_data/mkt_daybar/'
+add_daytime_SerialFile='G:/short_period_mf/trade_day.date'
 
 ###############################################################################
 ###############################################################################
@@ -3232,7 +3232,7 @@ def file2List(file):
     return outList
 
 
-def tDateOffset(inDateStr, offSetDays, timeSerialFile=timeSerialFile):
+def tDateOffset(inDateStr, offSetDays, timeSerialFile=add_daytime_SerialFile):
     timeSerialList = open(timeSerialFile).read().split('\n')
     inDateIdx = timeSerialList.index(inDateStr)
     outDateIdx = inDateIdx + np.sign(offSetDays) * (abs(offSetDays))
@@ -3252,7 +3252,7 @@ def tDaysOffset(inDateList, offSetDays):
         return expandDays[:-1] + inDateList
 
 def getDateIntvlList(beginDateStr, endDateStr):
-    listFull = open(timeSerialFile).read().split('\n')
+    listFull = open(add_daytime_SerialFile).read().split('\n')
     beginIdx = listFull.index(beginDateStr)
     endIdx = listFull.index(endDateStr)
     outList = listFull[beginIdx:endIdx+1]
@@ -3266,7 +3266,7 @@ def getDateListFromFile(inputFile):
     return outList
 
 def findPreTdate(dateStr):
-    tDateList = file2List(timeSerialFile)
+    tDateList = file2List(add_daytime_SerialFile)
     if dateStr not in tDateList:
         diffList = np.array(tDateIntList) - int(dateStr)
         idxArray = np.where(diffList<0)
@@ -3277,15 +3277,15 @@ def findPreTdate(dateStr):
     return outDateStr
 
 def findAfterTdate(dateStr):
-    tDateList = file2List(timeSerialFile)
+    tDateList = file2List(add_daytime_SerialFile)
     if dateStr not in tDateList:
-        outDateStr = tDateOffset(findPreTdate(dateStr), 1, timeSerialFile)[0]
+        outDateStr = tDateOffset(findPreTdate(dateStr), 1, add_daytime_SerialFile)[0]
     else:
         outDateStr = dateStr
     return outDateStr
 
 def getTradeDate(start, end):
-    tDateList = file2List(timeSerialFile)
+    tDateList = file2List(add_daytime_SerialFile)
     dateList = [x for x in tDateList if (x>=start) and (x<=end)]
     return dateList 
 
@@ -3332,7 +3332,7 @@ def poss_symbol(symbol):
     else:
         return str(symbol)
 
-def data_pre(stockList, dateList, path=day_file_path):
+def data_pre(stockList, dateList, path=add_day_file):
     fn = 'marketData.csv'
     mid = pd.read_csv(path + fn)
     mid['date'] = mid['date'].apply(lambda x : poss_date(x))
