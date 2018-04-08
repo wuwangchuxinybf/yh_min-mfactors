@@ -27,7 +27,9 @@ Created on Thu Apr  5 21:08:38 2018
 # 文件：daily_return.py
 
 # 第五步：计算行业和风格中性
-# 文件：Neural_IC.py 回归
+# 文件：single_factors_test_day.py 和 single_factors_test_min.py 回归
+
+# 第六步：计算行业和风格中性
 
 
 

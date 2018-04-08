@@ -22,3 +22,4 @@ add_style_factors = 'G:/1m_data/Barra/'  # 风格因子原始数据
 add_Nstyle_factors = 'G:/short_period_mf/style_factors/' # 风格因子处理后数据
 
 add_resid_value = 'G:/short_period_mf/resid_value/' # 单因子残差值
+add_factor_freturn = 'G:/short_period_mf/factor_freturn_day/' #单因子收益

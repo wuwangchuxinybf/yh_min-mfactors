@@ -13,7 +13,7 @@ import numpy as np
 # 然后对每个截面求得预测收益和实际收益的相关系数，即IC(t)值，最后得到一个时间序列的IC值
 # 对IC值进行T检验
 
-# 第一步 读取行业数据和个股收益率
+# 第一步 读取行业数据
 code_HS300 = pd.read_excel(add_gene_file + 'data_mkt.xlsx',sheetname='HS300')
 stockList = list(code_HS300['code'][:])
 industry = pd.read_pickle\
@@ -25,9 +25,6 @@ industry = industry.T
 industry.reset_index(inplace = True)
 industry.rename(columns={'index':'date'},inplace = True)
 
-#return_data = pd.read_pickle\
-#    (add_gene_file + 'dailyreturn.pickle').rename(columns={'symbol':'code'})
-
 # 第二步 读取风格因子数据
 # 因子数据截止到2017-12-06日'
 style_filenames = os.listdir(add_Nstyle_factors)
@@ -36,11 +33,14 @@ for sfilename in style_filenames:
     names = locals()
     names[sfilename[:-4]] = pd.read_csv(add_Nstyle_factors+sfilename)
    
-# 第三步 因子值回归
+# 第三步 因子值回归,得到行业和风格中性的因子残差值
 def resid(x, y):
     return sm.OLS(x, y).fit().resid
-    
-def Neutral_process(alpha_data, saf):
+
+def beta_value(x, y):
+    return sm.OLS(x, y).fit().params
+
+def possess_alpha(alpha_data, saf):
     alpha_data['code'] = alpha_data['code'].apply(lambda x:add_exchange(poss_symbol(x)))
     mid_columns = ['code'] + [x for x in list(alpha_data.columns)[1:] \
                   if x >='2017-01-01'and x<='2017-12-06']
@@ -55,7 +55,7 @@ def Neutral_process(alpha_data, saf):
 standard_alpha = os.listdir(add_alpha_day_stand)
 for saf in standard_alpha:   
     alpha_d = pd.read_pickle(add_alpha_day_stand + saf)
-    factor_data = Neutral_process(alpha_d,saf)
+    factor_data = possess_alpha(alpha_d,saf)
     df_resid=pd.DataFrame(index=stockList,columns =factor_data['date'])
     n=0
     for date in factor_data['date']:
@@ -71,3 +71,117 @@ for saf in standard_alpha:
         df_resid.iloc[:,n] = resid(Y, X)
         n=n+1
     df_resid.to_csv(add_resid_value+saf[9:18]+'_resid.csv',index = False)
+
+# 第三步 针对给定的预测周期，通过回归方程计算单期因子收益率；
+# 个股收益率
+return_data = pd.read_pickle\
+    (add_gene_file + 'dailyreturn.pickle').rename(columns={'symbol':'code'})
+return_data['code'] = return_data['code'].apply(lambda x:add_exchange(x))   
+return_data = return_data[(return_data['date']>='2017-01-01') & 
+                 (return_data['date']<='2017-12-06') & (return_data['code'].isin(stockList))]
+return_data=return_data.pivot(index='date', columns='code', values='daily_return')
+
+# 建立回归方程,求单因子收益率
+def factor_return(daynum):
+    resid_value = os.listdir(add_resid_value)
+    for ar in resid_value:   
+        resid_val = pd.read_csv(add_resid_value + ar)
+        factor_freturn=pd.DataFrame(columns =[['alpha_factors'] + list(resid_val.columns)])
+        n=0
+        for date in resid_val.columns:
+            X = industry
+            Y = return_data[return_data.index == date] # 每个时间截面的因子值
+            Y = Y.loc[:,stockList].T
+            Y = np.array(Y.fillna(0))
+            for sfile in style_list:
+                mid_sd = eval(sfile)
+                X = X.append(mid_sd[mid_sd['date'] == date])
+            resid_v = resid_val.iloc[:,resid_val.columns == date]
+            resid_v.index = stockList
+            resid_v = resid_v.T
+            X = X.append(resid_v)
+            X = X.loc[:,stockList].T
+            X = np.array(X.fillna(0))
+            factor_freturn.loc[n,'alpha_factors'] = ar[:9]
+            factor_freturn.loc[n,date] = beta_value(Y, X)[-1]
+            n=n+1
+    factor_freturn.to_csv(add_factor_freturn+'factors_return.csv',index = False)
+    return 0
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

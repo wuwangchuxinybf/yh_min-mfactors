@@ -33,7 +33,7 @@ def standard_progress():
                     data_d[j][i] = (x_mean[i]+1.65*x_std[i])
                 elif data_d[j][i] < (x_mean[i]-1.65*x_std[i]): # 之前是 x_mean[i]+1.65*x_std[i]
                     data_d[j][i] = (x_mean[i]-1.65*x_std[i])                   
-        data_d=pd.DataFrame(data_d,index=list(data_c['symbol']),columns=list(data_c.columns)[1:])
+        data_d=pd.DataFrame(data_d,index=list(data_c['code']),columns=list(data_c.columns)[1:])
         data_d.reset_index(inplace=True)
         data_d = data_d.rename(columns={'index':'code'})
         # 存到移动硬盘里
