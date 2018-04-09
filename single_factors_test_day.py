@@ -77,20 +77,26 @@ for saf in standard_alpha:
 return_data = pd.read_pickle\
     (add_gene_file + 'dailyreturn.pickle').rename(columns={'symbol':'code'})
 return_data['code'] = return_data['code'].apply(lambda x:add_exchange(x))   
-return_data = return_data[(return_data['date']>='2017-01-01') & 
+return_data = return_data[(return_data['date']>='2016-12-30') & 
                  (return_data['date']<='2017-12-06') & (return_data['code'].isin(stockList))]
 return_data=return_data.pivot(index='date', columns='code', values='daily_return')
 
 # 建立回归方程,求单因子收益率
-def factor_return(daynum):
+def factor_return(daynum=1):
+    date_list = list(return_data.index)
     resid_value = os.listdir(add_resid_value)
+    factor_freturn=pd.DataFrame(columns =[['alpha_factors'] + \
+                                         [x for x in date_list if x >='2017-01-01' ]])
+    n=0
     for ar in resid_value:   
-        resid_val = pd.read_csv(add_resid_value + ar)
-        factor_freturn=pd.DataFrame(columns =[['alpha_factors'] + list(resid_val.columns)])
-        n=0
+        resid_val = pd.read_csv(add_resid_value + ar)      
+        print (n)
+        factor_freturn.loc[n,'alpha_factors'] = ar[:9]
         for date in resid_val.columns:
             X = industry
-            Y = return_data[return_data.index == date] # 每个时间截面的因子值
+#            Y = return_data[return_data.index == date] # 每个时间截面的因子值
+            before_oneday = date_list[date_list.index(date)-daynum]
+            Y = return_data[return_data.index == before_oneday]
             Y = Y.loc[:,stockList].T
             Y = np.array(Y.fillna(0))
             for sfile in style_list:
@@ -101,10 +107,9 @@ def factor_return(daynum):
             resid_v = resid_v.T
             X = X.append(resid_v)
             X = X.loc[:,stockList].T
-            X = np.array(X.fillna(0))
-            factor_freturn.loc[n,'alpha_factors'] = ar[:9]
+            X = np.array(X.fillna(0))        
             factor_freturn.loc[n,date] = beta_value(Y, X)[-1]
-            n=n+1
+        n=n+1
     factor_freturn.to_csv(add_factor_freturn+'factors_return.csv',index = False)
     return 0
 
