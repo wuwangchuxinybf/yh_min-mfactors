@@ -26,7 +26,7 @@ Created on Thu Apr  5 21:08:38 2018
 # 第四步：计算日收益率
 # 文件：daily_return.py
 
-# 第五步：计算行业和风格中性，中性后的因子收益率
+# 第五步：计算行业和风格中性，中性后的因子值和因子收益率，然后计算
 # 文件：single_factors_test_day.py 和 single_factors_test_min.py 回归
 
 

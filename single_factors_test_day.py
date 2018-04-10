@@ -82,14 +82,18 @@ return_data = return_data[(return_data['date']>='2016-12-30') &
 return_data=return_data.pivot(index='date', columns='code', values='daily_return')
 
 # 建立回归方程,求单因子收益率
-def factor_return(daynum=1):
+def factor_return(daynum):
     date_list = list(return_data.index)
     resid_value = os.listdir(add_resid_value)
     factor_freturn=pd.DataFrame(columns =[['alpha_factors'] + \
                                          [x for x in date_list if x >='2017-01-01' ]])
     n=0
-    for ar in resid_value:   
-        resid_val = pd.read_csv(add_resid_value + ar)      
+    for ar in resid_value:
+        try:
+            resid_val = pd.read_csv(add_resid_value + ar) 
+        except:
+            n=n+1
+            continue
         print (n)
         factor_freturn.loc[n,'alpha_factors'] = ar[:9]
         for date in resid_val.columns:
@@ -110,14 +114,21 @@ def factor_return(daynum=1):
             X = np.array(X.fillna(0))        
             factor_freturn.loc[n,date] = beta_value(Y, X)[-1]
         n=n+1
-    factor_freturn.to_csv(add_factor_freturn+'factors_return.csv',index = False)
+    factor_freturn.to_csv(add_factor_freturn+'factors_return_%s.csv'%daynum,index = False)
     return 0
 
-
-
-
-
-
+# 第四步 检验因子有效性
+freturn_value = os.listdir(add_factor_freturn)
+# 计算年化收益率和IR
+for ndays in range(1,6):
+    df = pd.DataFrame(columns=['factors','return_peryear','IR'])
+    f_return = pd.read_csv(add_factor_freturn+'factors_return_%s.csv'%ndays)
+    df['factors'] = f_return['alpha_factors']
+    df['return_peryear'] = f_return[f_return.columns[1:]].apply( \
+                                  lambda x : (x.mean()/ndays)*252,axis=1)
+    df['IR'] = f_return[f_return.columns[1:]].apply( \
+                          lambda x : ((x.mean()/ndays)*np.sqrt(252))/((x/ndays).std()),axis=1)
+    df.to_csv(add_factor_freturn_IR+'factors_return_IR_%s.csv'%ndays,index=False)
 
 
 
