@@ -117,6 +117,9 @@ def factor_return(daynum):
     factor_freturn.to_csv(add_factor_freturn+'factors_return_%s.csv'%daynum,index = False)
     return 0
 
+for daynum in range(1,6):
+    factor_return(daynum)
+
 # 第四步 检验因子有效性
 freturn_value = os.listdir(add_factor_freturn)
 # 计算年化收益率和IR
@@ -125,14 +128,21 @@ for ndays in range(1,6):
     f_return = pd.read_csv(add_factor_freturn+'factors_return_%s.csv'%ndays)
     df['factors'] = f_return['alpha_factors']
     df['return_peryear'] = f_return[f_return.columns[1:]].apply( \
-                                  lambda x : (x.mean()/ndays)*252,axis=1)
+                                  lambda x : ((x/ndays).mean())*252,axis=1)
     df['IR'] = f_return[f_return.columns[1:]].apply( \
                           lambda x : ((x.mean()/ndays)*np.sqrt(252))/((x/ndays).std()),axis=1)
     df.to_csv(add_factor_freturn_IR+'factors_return_IR_%s.csv'%ndays,index=False)
 
 
-
-
+# 第五步 统计因子收益
+factors_return_IR = os.listdir(add_factor_freturn_IR)
+df = pd.DataFrame(columns=['factors_return_mean','IR_mean'])
+n=0
+for frI in factors_return_IR:
+    frI_return = pd.read_csv(add_factor_freturn_IR+frI)
+    df.loc[n,'factors_return_mean'] = frI_return['return_peryear'].mean()
+    df.loc[n,'IR_mean'] = frI_return['IR'].mean()
+    n = n+1
 
 
 

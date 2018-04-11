@@ -10,10 +10,12 @@ os.chdir('D:/yh_min-mfactors')
 from address_data import *
 import pandas as pd
 from poss_data_format import *
+import numpy as np
 
 code_HS300 = pd.read_excel(add_gene_file + 'data_mkt.xlsx',sheetname='HS300')
 stockList = list(code_HS300['code'][:])
 
+# 风格因子没有标准化
 def poss_style_factors(end_date='2017-01-01')
     style_filenames = os.listdir(add_style_factors)
     style_filenames.pop(-3) # 不要NLSize数据
@@ -25,8 +27,24 @@ def poss_style_factors(end_date='2017-01-01')
         df.columns = col
         df = df[list(['date']+stockList)]
         df = df[df['date']>=end_date]
+        df.fillna(0,inplace=True)
+        
+        df_d = df.iloc[:,1:]
+        df_d = np.array(df_d)
+        x_mean = df_d.mean(axis = 1)   #每一日所有股票的
+        x_std = df_d.std(axis = 1)    #每一日所有股票的
+        for i in range(len(df)):
+            for j in range(len(df.columns)-1):
+                if df_d[i][j] > (x_mean[i]+1.65*x_std[i]):
+                    df_d[i][j] = (x_mean[i]+1.65*x_std[i])
+                elif df_d[i][j] < (x_mean[i]-1.65*x_std[i]): # 之前是 x_mean[i]+1.65*x_std[i]
+                    df_d[i][j] = (x_mean[i]-1.65*x_std[i]) 
+        df.iloc[:,1:] = df_d
         mid_name = filename[:filename.index('_')]
         df.to_csv(add_Nstyle_factors + '%s.csv'%mid_name,index = False)
+
+
+
 
 # Beta Momentum Size Earnings_Yield Volatilty Growth Value Leverage Liquidity
 #                    EarnYield       ResVol           PB
