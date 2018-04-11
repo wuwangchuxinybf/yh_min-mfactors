@@ -21,7 +21,8 @@ add_alpha_min_stand = 'G:/short_period_mf/alpha_min_stand/' #标准化分钟alph
 add_style_factors = 'G:/1m_data/Barra/'  # 风格因子原始数据
 add_Nstyle_factors = 'G:/short_period_mf/style_factors/' # 风格因子处理后数据
 
-add_resid_value = 'G:/short_period_mf/resid_value/' # 单因子残差值
+add_resid_value_day = 'G:/short_period_mf/resid_value_day/' # 单因子残差值
+add_resid_value_min = 'G:/short_period_mf/resid_value_min/' # 单因子残差值
 add_factor_freturn = 'G:/short_period_mf/factor_freturn_day/' #单因子收益
 
 add_factor_freturn_IR = 'G:/short_period_mf/factors_return_pyear_IR/' #因子年化收益和IR值
