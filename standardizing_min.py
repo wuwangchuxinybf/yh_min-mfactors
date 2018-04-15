@@ -60,6 +60,3 @@ def standard_progress():
 
 
 
-
-
-

@@ -7,7 +7,7 @@ from address_data import *
 import pandas as pd
 import statsmodels.api as sm
 import numpy as np
-import scipy.io
+#import scipy.io
 # 某一时间截面，所有个股的收益对所有个股的各个因子进行多元回归，
 # 得到某个因子在某个时间个股的残差值，数据量191*227*300，得到有效因子
 # 然后对每个截面求得预测收益和实际收益的相关系数，即IC(t)值，最后得到一个时间序列的IC值
@@ -17,23 +17,53 @@ import scipy.io
 code_HS300 = pd.read_excel(add_gene_file + 'data_mkt.xlsx',sheetname='HS300')
 stockList = list(code_HS300['code'][:])
 stockList.remove('600485.SH')  #该股票停牌 没有数据
+#~stockList_df = pd.DataFrame(stockList,columns = ['code'])
+#~stockList_df.to_csv(add_alpha_min_csv+'stockList.csv',index = False)
+
 industry = pd.read_pickle\
     (add_gene_file + 'industry.pkl').drop_duplicates()
 industry = industry[industry['code'].isin(stockList)]
 industry.index = industry['code']
 industry.drop(['code'],axis = 1,inplace = True)
+#~industry.rename(columns={'休闲服务':'XXFW','传媒':'CM','公用事业':'GYSY','农林牧渔':'NLMY'\
+#~                          ,'化工':'HG','医药生物':'YYSW','商业贸易':'SYMY','国防军工':'GFJG'\
+#~                          ,'家用电器':'JYDQ','建筑材料':'JZCL','建筑装饰':'JZZS','房地产':'FDC'\
+#~                          ,'有色金属':'YSJS','机械设备':'JXSB','汽车':'QC','电子':'DZ','电气设备':'DQSB'\
+#~                          ,'纺织服装':'FZFZ','综合':'ZH','计算机':'JSJ','轻工制造':'QGZZ'\
+#~                         ,'通信':'TX','采掘':'CJ','钢铁':'GT','银行':'YH','非银金融':'FYJR'\
+#~                         ,'食品饮料':'SPYL','餐饮旅游':'CYLY','黑色金属':'HSJS'},inplace = True)
+#~ industry.to_csv(add_alpha_min_csv+'industry.csv',index = False)
 industry = industry.T
 industry.reset_index(inplace = True)
 industry.rename(columns={'index':'date'},inplace = True)
+
+#~    生成交易日序列文件
+dateList = open(add_mintime_SerialFile).read().split('\n')
+dateList_df = pd.DataFrame(dateList,columns = ['datetime'])
+dateList_df.to_csv(add_alpha_min_csv+'min_dateList.csv',index = False)
+
+dateList_day = open(add_daytime_SerialFile).read().split('\n')
+dateList_day = pd.DataFrame(dateList_day,columns = ['datetime'])
+dateList_day.to_csv(add_alpha_min_csv+'day_dateList.csv',index = False)
+
+#~    mid_dateList = pd.DataFrame(mid_fac['date'],columns = ['date'])
+#~    mid_dateList.to_csv(add_alpha_min_csv+'day_dateList.csv',index = False)
 
 # 第二步 读取风格因子数据
 # 因子数据截止到2017-12-06日'
 style_filenames = os.listdir(add_Nstyle_factors)
 style_list = list(map(lambda x : x[:-4],style_filenames))
 for sfilename in style_filenames:
-    names = locals()
-    names[sfilename[:-4]] = pd.read_csv(add_Nstyle_factors+sfilename)
-    eval(sfilename[:-4]).drop('600485.SH',axis=1, inplace=True)
+#    names = locals()
+    mid_fac = pd.read_csv(add_Nstyle_factors+sfilename)
+    mid_fac.drop('600485.SH',axis=1, inplace=True)
+
+    mid_fac.drop(['date'],axis = 1,inplace = True)
+    mid_fac = mid_fac.T
+    mid_fac.to_csv(add_alpha_min_csv+sfilename,index = False,header = False)
+#    names[sfilename[:-4]] = pd.read_csv(add_Nstyle_factors+sfilename)
+#    eval(sfilename[:-4]).drop('600485.SH',axis=1, inplace=True)
+#    eval(sfilename[:-4]).to_csv(add_alpha_min_csv+sfilename,index = False)
    
 # 第三步 因子值回归,得到行业和风格中性的因子残差值
 def resid(x, y):
@@ -58,20 +88,24 @@ standard_alpha = os.listdir(add_alpha_min_stand)
 for saf in standard_alpha:
 #    saf = 'standard_alpha_001.pickle'
     alpha_d = pd.read_pickle(add_alpha_min_stand + saf)
-    code = np.array(alpha_d['code'])
-    standard_alpha_001 = np.array(alpha_d)
-    alpha_d.columns = ['code']+list(\
-      map(lambda x : x[:10]+'-'+x[-8:-6]+'-'+x[-5:-3]+'-'+x[-2:],list(alpha_d.columns)[1:]))
-    
-#    datetime.shape((alpha_d.columns.size-1),1)
-    scipy.io.savemat('C:/Users/wuwangchuxin/Desktop/mydata.mat',alpha_d)
-    scipy.io.savemat('C:/Users/wuwangchuxin/Desktop/mydata.mat',\
-         mdict={'code':code,'standard_alpha_001':standard_alpha_001,'datetime':datetime})
-    
-    array_1d=np.array([1,2])  
-    print array_1d.shape, array_1d.transpose()  
-    array_1d.shape=(2,1)  
-    print array_1d.shape, array_1d.transpose()  
+#    alpha_d.to_csv(add_alpha_min_csv + '%s.csv'%saf[9:18],index = False)
+#    
+#    
+#    code = np.array(alpha_d['code'])
+#    standard_alpha_001 = np.array(alpha_d)
+#    alpha_d.columns = ['code']+list(\
+#      map(lambda x : x[:10]+'-'+x[-8:-6]+'-'+x[-5:-3]+'-'+x[-2:],list(alpha_d.columns)[1:]))
+#    
+#    alpha_d.to_csv('C:/Users/wuwangchuxin/Desktop/mydata.csv',index = False)
+##    datetime.shape((alpha_d.columns.size-1),1)
+#    scipy.io.savemat('C:/Users/wuwangchuxin/Desktop/mydata.mat',alpha_d)
+#    scipy.io.savemat('C:/Users/wuwangchuxin/Desktop/mydata.mat',\
+#         mdict={'code':code,'standard_alpha_001':standard_alpha_001,'datetime':datetime})
+#    
+#    array_1d=np.array([1,2])  
+#    print array_1d.shape, array_1d.transpose()  
+#    array_1d.shape=(2,1)  
+#    print array_1d.shape, array_1d.transpose()  
 
 
     factor_data = possess_alpha(alpha_d,saf)
