@@ -28,3 +28,5 @@ add_factor_freturn = 'G:/short_period_mf/factor_freturn_day/' #单因子收益
 add_factor_freturn_IR = 'G:/short_period_mf/factors_return_pyear_IR/' #因子年化收益和IR值
 
 add_alpha_min_csv = 'G:/short_period_mf/alpha_min_stand_matlab/' #因子值存入csv然后用MATLAB处理
+
+add_stock_return_min = 'G:/short_period_mf/stock_return_min/' #分钟行情股票收益率

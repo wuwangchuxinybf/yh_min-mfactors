@@ -9,7 +9,7 @@ import os
 os.chdir('D:/yh_min-mfactors')
 from address_data import *
 import pandas as pd
-from poss_data_format import *
+from functions import *
 import numpy as np
 
 code_HS300 = pd.read_excel(add_gene_file + 'data_mkt.xlsx',sheetname='HS300')
@@ -20,6 +20,7 @@ def poss_style_factors(end_date='2017-01-01')
     style_filenames = os.listdir(add_style_factors)
     style_filenames.pop(-3) # 不要NLSize数据
     for filename in style_filenames:
+        print (filename)
         df = pd.read_csv(add_style_factors+filename)
         col = list(df.columns)
         col[1:] = map(add_exchange,list(map(poss_symbol,col[1:])))
@@ -27,45 +28,16 @@ def poss_style_factors(end_date='2017-01-01')
         df.columns = col
         df = df[list(['date']+stockList)]
         df = df[df['date']>=end_date]
-        df.fillna(0,inplace=True)
-        
-        df_d = df.iloc[:,1:]
-        df_d = np.array(df_d)
-        x_mean = df_d.mean(axis = 1)   #每一日所有股票的
-        x_std = df_d.std(axis = 1)    #每一日所有股票的
-        for i in range(len(df)):
-            for j in range(len(df.columns)-1):
-                if df_d[i][j] > (x_mean[i]+1.65*x_std[i]):
-                    df_d[i][j] = (x_mean[i]+1.65*x_std[i])
-                elif df_d[i][j] < (x_mean[i]-1.65*x_std[i]): # 之前是 x_mean[i]+1.65*x_std[i]
-                    df_d[i][j] = (x_mean[i]-1.65*x_std[i]) 
-        df.iloc[:,1:] = df_d
+        df.set_index('date',inplace = True)
+        df = df.T
+        df.dropna(axis=1,how='all',inplace = True)        
+        df_res = stand_fac(df)
+        df_res = df_res.T
+        df_res=pd.DataFrame(df_res,index=list(df.columns),columns=df.index)
+        df_res.reset_index(inplace=True)
+        df_res = df_res.rename(columns={'index':'date'})
         mid_name = filename[:filename.index('_')]
-        df.to_csv(add_Nstyle_factors + '%s.csv'%mid_name,index = False)
-
-
-
-
-# Beta Momentum Size Earnings_Yield Volatilty Growth Value Leverage Liquidity
-#                    EarnYield       ResVol           PB
-
-#def poss_style_data(end_date='2017-01-01'):
-#    style_filenames = os.listdir(add_Nstyle_factors)
-#    style_filenames.pop(-3)  # 不要NLSize数据
-#    for sfilename in style_filenames:       
-#        mid_data = pd.read_csv(add_Nstyle_factors+sfilename)
-#        mid_data = mid_data[mid_data['date']>=end_date]        
-#        mid_data=mid_data.melt(id_vars='date')
-#        mid_data['variable'] = mid_data['variable'].apply(lambda x : add_exchange(x))
-#        mid_data=mid_data.pivot(index='variable', columns='date', values='value')
-#        mid_data.reset_index(inplace = True)
-#        mid_data.rename(columns={'variable':'code'},inplace = True)
-#        mid_data.fillna(0,inplace = True)
-#        mid_data.to_csv()
-#        names = locals()
-#        names[sfilename[:-4]] = mid_data
-
-
+        df_res.to_csv(add_Nstyle_factors + '%s.csv'%mid_name,index = False)
 
 
 

@@ -2,10 +2,10 @@
 
 import os
 os.chdir('D:/yh_min-mfactors')
-from poss_data_format import *
+from functions import *
 from address_data import *
 import pandas as pd
-import statsmodels.api as sm
+#import statsmodels.api as sm
 import numpy as np
 
 # 某一时间截面，所有个股的收益对所有个股的各个因子进行多元回归，
@@ -34,35 +34,20 @@ for sfilename in style_filenames:
     names[sfilename[:-4]] = pd.read_csv(add_Nstyle_factors+sfilename)
    
 # 第三步 因子值回归,得到行业和风格中性的因子残差值
-def resid(x, y):
-    return sm.OLS(x, y).fit().resid
-
-def beta_value(x, y):
-    return sm.OLS(x, y).fit().params
-
-def possess_alpha(alpha_data, saf):
-    alpha_data['code'] = alpha_data['code'].apply(lambda x:add_exchange(poss_symbol(x)))
-    mid_columns = ['code'] + [x for x in list(alpha_data.columns)[1:] \
-                  if x >='2017-01-01'and x<='2017-12-06']
-    alpha_data = alpha_data.loc[:,mid_columns]
-    alpha_data.index = alpha_data['code']
-    alpha_data.drop(['code'],axis = 1,inplace = True)
-    alpha_data = alpha_data.T
-    alpha_data.reset_index(inplace = True)
-    alpha_data.rename(columns={'index':'date'},inplace = True)
-    return alpha_data
-
 standard_alpha = os.listdir(add_alpha_day_stand)
-for saf in standard_alpha:   
-    alpha_d = pd.read_pickle(add_alpha_day_stand + saf)
+for saf in standard_alpha:
+    print (saf)
+    # saf = 'standard_alpha_001.csv'
+    alpha_d = pd.read_csv(add_alpha_day_stand + saf)
     factor_data = possess_alpha(alpha_d,saf)
     df_resid=pd.DataFrame(index=stockList,columns =factor_data['date'])
     n=0
     for date in factor_data['date']:
+        print (n)
         X = industry
         Y = factor_data[factor_data['date'] == date] # 每个时间截面的因子值
         Y = Y.loc[:,stockList].T
-        Y = np.array(Y.fillna(0))
+#        Y = np.array(Y.fillna(0))
         for sfile in style_list:
             mid_sd = eval(sfile)
             X = X.append(mid_sd[mid_sd['date'] == date])
@@ -90,7 +75,7 @@ def factor_return(daynum):
     n=0
     for ar in resid_value:
         try:
-            resid_val = pd.read_csv(add_resid_value + ar) 
+            resid_val = pd.read_csv(add_resid_value_day + ar) 
         except:
             n=n+1
             continue
@@ -122,6 +107,7 @@ for daynum in range(1,6):
 
 # 第四步 检验因子有效性
 freturn_value = os.listdir(add_factor_freturn)
+test = pd.read_csv('G:/short_period_mf/factor_freturn_day/factors_return_1.csv')
 # 计算年化收益率和IR
 for ndays in range(1,6):
     df = pd.DataFrame(columns=['factors','return_peryear','IR'])

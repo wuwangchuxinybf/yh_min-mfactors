@@ -1230,7 +1230,7 @@ def alpha_076(stockList, dateList):
     closeData, volData = generateDataFrame(stockList, dateList, fields, offday)
 
     delay_1 = dfDelay(closeData, 1) + 0.001
-    temp_1 = (dfABS(closeData / delay_1) - 1) / (volData + 1) + 1
+    temp_1 = (dfABS(closeData / delay_1) - 1) / (volData + 1)   #  原来有+1
     result = dfStd(temp_1, 20) / dfMean(temp_1, 20)
 
     return result.T[dateList] 
@@ -3108,7 +3108,6 @@ def rollCov(df1, df2, n):
     dfCov = dfCov.replace([np.inf, -np.inf], 0)
     dfCov[dfStd == 0] = 0
     return dfCov
-
 
 def dfStd(df, rollingday):
     return df.rolling(rollingday).std()

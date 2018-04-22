@@ -1,7 +1,8 @@
 format compact;
 % 数据文件地址
 % add_data = 'G:/short_period_mf/alpha_min_stand_matlab/';
-add_resid = 'G:/short_period_mf/resid_value_min_matlab/';
+% add_resid = 'G:/short_period_mf/resid_value_min_matlab/';
+add_factor_return = 'G:/short_period_mf/factor_return_min_matlab/';
 % 最终结果初始化
 data_str = struct;
 % 股票代码
@@ -28,26 +29,32 @@ for fn=1:length(factors_file)
     mid = kron(csvread(factors_file{fn}),ones(1,240));
     data_str.(factors_file{fn}(1:end-4)) =  mid(:,7:end);
 end
-clear day_dateList factors_file fln indus_fln industry industry_str mid stockList min_dateList
-% alpha因子数据
-% for n=1:191
-%     factors_reuturn = readtable(strcat('alpha_',alpha_filename(n),'.csv'),'ReadVariableNames',true);
-% %     factors_reuturn = factors_reuturn(1:end,2:end);
-%     data_str.(strcat('alpha_',alpha_filename(n))) = table2array(factors_reuturn(:,2:end));
-% end
+clear day_dateList factors_file fln indus_fln industry...
+        industry_str mid stockList min_dateList fn
+% 计算股票收益
+
+% regerssion
+data_str.fac_resid = zeros(299,54474);
 fldname = fieldnames(data_str);
 fldname = fldname(4:end,1);
-for n=167:191
-    X_matrix = zeros(299,38);
-    result = zeros(299,54474);
-    Y = csvread(strcat('alpha_',alpha_filename(n),'.csv'),1,1,[1,1,299,54474]);
-    for min_len=1:length(data_str.trade_min)
-        for fn=1:length(fldname)
-            X_matrix(:,fn) = data_str.(fldname{fn})(:,min_len);
+for nmin =[240,60] % 1,180
+    result = zeros(191,54474);
+    for n=1:191
+        data_str.fac_resid = zeros(299,54474);
+        X_matrix = zeros(299,39);
+        Fac_resid = load(strcat('alpha_',alpha_filename(n),'_resid.mat'));
+        data_str.fac_resid = Fac_resid.result;
+        Y = csvread(strcat('return_min_',num2str(nmin),'.csv'),7,2,[7,2,54480,300]);
+        Y = Y';
+        for min_len=1:length(data_str.trade_min)
+            min_len
+            for fn=1:length(fldname)
+                X_matrix(:,fn) = data_str.(fldname{fn})(:,min_len);
+            end
+            b = regress(Y(:,min_len),X_matrix);
+            result(n,min_len) = b(39);
         end
-        [~,~,r] = regress(Y(:,min_len),X_matrix);
-        result(:,min_len) = r;
     end
-    save(strcat(add_resid,'alpha_',alpha_filename(n),'_resid.mat'),'result');
-    clear result Y X_matrix r n min_len
+    save(strcat(add_factor_return,'factor_return_',num2str(nmin),'.mat'),'result');
+    clear result X_matrix Fac_resid Y n min_len fn 
 end
