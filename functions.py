@@ -37,7 +37,15 @@ def add_exchange(symbol):
         return symbol+'.SH'
     else:
         return symbol+'.SZ'
-    
+
+def alpha_filename(num):
+    if np.log10(num)<1:
+        return '00'+str(num)
+    elif np.log10(num)<2:
+        return '0'+str(num)
+    else:
+        return str(num)
+
 def stand_fac(data_b):
     x_mean = data_b.mean()   #每一日所有股票的 默认 axis = 0
     x_std = data_b.std()    #每一日所有股票的     
@@ -45,9 +53,9 @@ def stand_fac(data_b):
         for i in range(len(data_b)):
             if not np.isnan(data_b.iloc[i,j]):
                 if (data_b.iloc[i,j]-x_mean[j])/x_std[j] > 3:
-                    data_b.iloc[i,j] = 3
+                    data_b.iloc[i,j] = 3*x_std[j]+x_mean[j]
                 elif (data_b.iloc[i,j]-x_mean[j])/x_std[j] < -3:
-                    data_b.iloc[i,j] = -3 #(x_mean[i]-3*x_std[i])   
+                    data_b.iloc[i,j] = -3*x_std[j]+x_mean[j] #(x_mean[i]-3*x_std[i])   
     x_mean2 = np.array(data_b.mean())
     x_std2 = np.array(data_b.std())
     data_c = pd.DataFrame(index = data_b.index,columns = data_b.columns)
@@ -65,8 +73,13 @@ def beta_value(x, y):
 
 def possess_alpha(alpha_data, saf):
     alpha_data['code'] = alpha_data['code'].apply(lambda x:add_exchange(poss_symbol(x)))
-    mid_columns = ['code'] + [x for x in list(alpha_data.columns)[1:] \
-                  if x >='2017-01-01'and x<='2017-12-06']
+    if saf == 'standard_alpha_149.csv':
+        mid_columns = ['code'] + [x for x in list(map(poss_date,alpha_data.columns[1:])) \
+                      if x >='2017-01-01'and x<='2017-12-06']
+        alpha_data.columns = ['code'] + [x for x in list(map(poss_date,alpha_data.columns[1:]))]
+    else:
+        mid_columns = ['code'] + [x for x in list(alpha_data.columns)[1:] \
+                      if x >='2017-01-01'and x<='2017-12-06']    
     alpha_data = alpha_data.loc[:,mid_columns]
     alpha_data.index = alpha_data['code']
     alpha_data.drop(['code'],axis = 1,inplace = True)

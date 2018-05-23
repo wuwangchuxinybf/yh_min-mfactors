@@ -2,7 +2,7 @@
 
 import os
 os.chdir('D:/yh_min-mfactors')
-from poss_data_format import *
+from functions import *
 from address_data import *
 import pandas as pd
 import statsmodels.api as sm
@@ -178,34 +178,61 @@ for daynum in range(1,6):
     factor_return(daynum)
 
 # 第四步 检验因子有效性
-freturn_value = os.listdir(add_factor_freturn)
+freturn_value = os.listdir(add_factor_return_min)
 # 计算年化收益率和IR
-for ndays in range(1,6):
+for nmins in [240,60,120,180]:
     df = pd.DataFrame(columns=['factors','return_peryear','IR'])
-    f_return = pd.read_csv(add_factor_freturn+'factors_return_%s.csv'%ndays)
-    df['factors'] = f_return['alpha_factors']
-    df['return_peryear'] = f_return[f_return.columns[1:]].apply( \
-                                  lambda x : ((x/ndays).mean())*252,axis=1)
-    df['IR'] = f_return[f_return.columns[1:]].apply( \
-                          lambda x : ((x.mean()/ndays)*np.sqrt(252))/((x/ndays).std()),axis=1)
-    df.to_csv(add_factor_freturn_IR+'factors_return_IR_%s.csv'%ndays,index=False)
+    f_return = pd.read_csv(add_factor_return_min+'factor_return_%s.csv'%nmins,header=None)
+    df['factors'] = ['alpha_'+alpha_filename(x) for x in range(1,192)]
+    df['return_peryear'] = f_return.apply(lambda x : ((x/nmins).mean())*252*240,axis=1)
+    df['IR'] = f_return.apply( \
+                  lambda x : ((x.mean()/nmins)*np.sqrt(252*240))/((x/nmins).std()),axis=1)
+    df.to_csv(add_factor_min_freturn_IR+'factors_return_min_IR_%s.csv'%nmins,index=False)
 
 
 # 第五步 统计因子收益
-factors_return_IR = os.listdir(add_factor_freturn_IR)
+factors_return_IR = os.listdir(add_factor_min_freturn_IR)
 df = pd.DataFrame(columns=['factors_return_mean','IR_mean'])
 n=0
 for frI in factors_return_IR:
-    frI_return = pd.read_csv(add_factor_freturn_IR+frI)
+    frI_return = pd.read_csv(add_factor_min_freturn_IR+frI)
     df.loc[n,'factors_return_mean'] = frI_return['return_peryear'].mean()
     df.loc[n,'IR_mean'] = frI_return['IR'].mean()
     n = n+1
 
+#  factors_return_mean    IR_mean
+#0         -0.00538119 -0.0630792
+#1          -0.0426761  -0.288343
+#2          -0.0512058  -0.426739
+#3          -0.0166101  -0.142192
 
+# 第六步 找出4个预测期效果都比较好的因子  
+factors_return_IR = os.listdir(add_factor_min_freturn_IR)
+df_score = pd.DataFrame(columns=['factors'])
+for frI in factors_return_IR:
+    print (frI)
+    frI_return2 = pd.read_csv(add_factor_min_freturn_IR+frI)
+    frI_return2.sort_values(by='return_peryear',axis=0,ascending=True,inplace=True)
+    frI_return2['score_return'] = list(range(1,192))
+    frI_return2.sort_values(by='IR',axis=0,ascending=True,inplace=True)
+    frI_return2['score_IR'] = list(range(1,192))
+    if len(frI)==28:
+        mid_name = frI[22:24]
+    else:
+        mid_name = frI[22:25]
+    frI_return2['score_%s'%mid_name] = frI_return2['score_return']+ frI_return2['score_IR']
+    if frI == 'factors_return_min_IR_120.csv':
+        df_score['factors'] = frI_return2['factors']
+    frI_return2 = frI_return2[['factors','return_peryear','IR','score_%s'%mid_name]]
+    frI_return2.rename(columns={'return_peryear':'return_%s'%mid_name,\
+                                'IR':'IR_%s'%mid_name},inplace = True)
+    df_score = pd.merge(df_score,frI_return2,on='factors',how='inner')
+df_score['score_res'] = df_score['score_120']+df_score['score_60']\
+                        +df_score['score_180']+df_score['score_240']
+df_score.sort_values(by='score_res',axis=0,ascending=False,inplace=True)
+df_score.to_csv(add_effecive_factors_min+'effecive_factors_min.csv',index=False)
 
-
-
-
+df_score.columns
 
 
 

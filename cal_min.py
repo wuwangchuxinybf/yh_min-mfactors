@@ -7,7 +7,7 @@ Created on Thu Mar  8 21:49:28 2018
 
 import os
 os.chdir('D:/yh_min-mfactors')
-from alphaFuncs_min import *
+from alphaFuncs_min_240 import *
 from address_data import *
 import pandas as pd
 import feather as ft
@@ -31,7 +31,7 @@ stockList = list(code_HS300['code'][:])
 
 # 分钟线：从2017-01-03 09:31:00 至 2018-01-15 15:00:00
 dateList = open(add_mintime_SerialFile).read().split('\n')
-alpha_all(stockList, dateList, savepath=add_alpha_min_file)
+alpha_all(stockList, dateList, savepath=add_alpha_min_expand_file)
 
 
 

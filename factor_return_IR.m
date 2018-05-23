@@ -34,20 +34,24 @@ clear day_dateList factors_file fln indus_fln industry...
 % 计算股票收益
 
 % regerssion
-data_str.fac_resid = zeros(299,54474);
+data_str.fac_resid = zeros(299,54474); %有用！！！
 fldname = fieldnames(data_str);
 fldname = fldname(4:end,1);
-for nmin =[240,60] % 1,180
+for nmin =[120,180] % 1,180  %240,60
     result = zeros(191,54474);
     for n=1:191
+        n
         data_str.fac_resid = zeros(299,54474);
         X_matrix = zeros(299,39);
         Fac_resid = load(strcat('alpha_',alpha_filename(n),'_resid.mat'));
         data_str.fac_resid = Fac_resid.result;
-        Y = csvread(strcat('return_min_',num2str(nmin),'.csv'),7,2,[7,2,54480,300]);
+        if nmin==120
+            Y = csvread(strcat('return_min_',num2str(nmin),'.csv'),7,1,[7,1,54480,299]);
+        else
+            Y = csvread(strcat('return_min_',num2str(nmin),'.csv'),7,2,[7,2,54480,300]);
+        end
         Y = Y';
         for min_len=1:length(data_str.trade_min)
-            min_len
             for fn=1:length(fldname)
                 X_matrix(:,fn) = data_str.(fldname{fn})(:,min_len);
             end

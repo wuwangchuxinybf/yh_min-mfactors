@@ -23,10 +23,17 @@ add_Nstyle_factors = 'G:/short_period_mf/style_factors/' # 风格因子处理后
 
 add_resid_value_day = 'G:/short_period_mf/resid_value_day/' # 单因子残差值
 add_resid_value_min = 'G:/short_period_mf/resid_value_min/' # 单因子残差值
-add_factor_freturn = 'G:/short_period_mf/factor_freturn_day/' #单因子收益
+add_factor_return = 'G:/short_period_mf/factor_return_day/' #单因子收益
+add_factor_return_min = 'G:/short_period_mf/factor_return_min/' #单因子收益
 
 add_factor_freturn_IR = 'G:/short_period_mf/factors_return_pyear_IR/' #因子年化收益和IR值
+add_factor_min_freturn_IR = 'G:/short_period_mf/factors_return_min_pyear_IR/' #因子年化收益和IR值
 
 add_alpha_min_csv = 'G:/short_period_mf/alpha_min_stand_matlab/' #因子值存入csv然后用MATLAB处理
 
 add_stock_return_min = 'G:/short_period_mf/stock_return_min/' #分钟行情股票收益率
+
+add_effecive_factors_day = 'G:/short_period_mf/effecive_factors_day/' # 存放因子日数据结果
+add_effecive_factors_min = 'G:/short_period_mf/effecive_factors_min/'
+
+add_alpha_min_expand_file = 'G:/short_period_mf/alpha_min_expand/' # 按日计算预测期的分钟线因子

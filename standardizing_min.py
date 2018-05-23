@@ -7,6 +7,7 @@ Created on Wed Mar 14 20:42:21 2018
 #import time
 import os
 os.chdir('D:/yh_min-mfactors')
+from functions import *
 from address_data import *
 import numpy as np
 import pandas as pd
@@ -18,30 +19,27 @@ def standard_progress():
     filenameList = os.listdir(add_alpha_min_file)
 #    filenameList = filenameList[148:]  #alpha_149的代码名称为code,手动打开数据文件改为symbol
     for filename in filenameList:
-        #首先对因子值进行空值删除和标准化处理
-#        start=time.clock()
+        print (filename)
+        #首先对因子值进行空值删除和标准化处理        
         data = pd.read_csv(add_alpha_min_file+filename)
-        data = pd.concat([data.iloc[:,0],data.iloc[:,7:]],axis=1)
-        data_c = data.fillna(0)
-        data_b = data_c.iloc[:,1:]
-        data_d = np.array(data_b)
-        x_mean = data_d.mean(axis = 0)   #每一日所有股票的
-        x_std = data_d.std(axis = 0)    #每一日所有股票的
-        for i in range(len(data_c.columns)-1):
-            for j in range(len(data_c)):  # 之前是 len(data_c)-1
-                if data_d[j][i] > (x_mean[i]+1.65*x_std[i]):
-                    data_d[j][i] = (x_mean[i]+1.65*x_std[i])
-                elif data_d[j][i] < (x_mean[i]-1.65*x_std[i]): # 之前是 x_mean[i]+1.65*x_std[i]
-                    data_d[j][i] = (x_mean[i]-1.65*x_std[i])                   
-        data_d=pd.DataFrame(data_d,index=list(data_c['code']),columns=list(data_c.columns)[1:])
-        data_d.reset_index(inplace=True)
-        data_d = data_d.rename(columns={'index':'code'})
+        data.dropna(axis=1,how='all',inplace = True)
+        data_b = np.array(data.iloc[:,1:])
+        x_mean = np.nanmean(data_b,axis=0).reshape(1,-1)  
+        x_std = np.nanstd(data_b,axis=0).reshape(1,-1)
+        data_std = (data_b - x_mean)/x_std
+        x_std_df = np.tile(x_std,(299,1))
+        data_b[data_std>3] = 3*x_std_df[data_std>3]
+        data_b[data_std<-3] = -3*x_std_df[data_std<-3]
+        x_mean2 = np.nanmean(data_b,axis=0).reshape(1,-1)
+        x_std2 = np.nanstd(data_b,axis=0).reshape(1,-1)
+        data_b[np.isnan(data_b)] = np.tile(x_mean2,(299,1))[np.isnan(data_b)]
+        data_c = (data_b - x_mean2)/x_std2       
+        data_c=pd.DataFrame(data_c,index=list(data['code']),columns=list(data.columns)[1:])
+        data_c.reset_index(inplace=True)
+        data_c = data_c.rename(columns={'index':'code'})
         # 存到移动硬盘里
-        output = open(add_alpha_min_stand + 'standard_%s.pickle'%filename[:9],'wb')
-        pickle.dump(data_d,output)
-        output.close()
-#        end = time.clock()
-    return None
+        data_c.to_csv(add_alpha_min_stand + 'standard_%s.csv'%filename[:9],index=False)
+    return 0
 
 
 #standard_alpha_001 = pd.read_pickle(add_alpha_min_stand + 'standard_alpha_001.pickle')

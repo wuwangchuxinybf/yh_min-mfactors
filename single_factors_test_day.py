@@ -14,8 +14,9 @@ import numpy as np
 # 对IC值进行T检验
 
 # 第一步 读取行业数据
-code_HS300 = pd.read_excel(add_gene_file + 'data_mkt.xlsx',sheetname='HS300')
+code_HS300 = pd.read_excel(add_gene_file + 'index_stockcodes.xlsx',sheetname='HS300')
 stockList = list(code_HS300['code'][:])
+stockList.remove('600485.SH')
 industry = pd.read_pickle\
     (add_gene_file + 'industry.pkl').drop_duplicates()
 industry = industry[industry['code'].isin(stockList)]
@@ -39,6 +40,7 @@ for saf in standard_alpha:
     print (saf)
     # saf = 'standard_alpha_001.csv'
     alpha_d = pd.read_csv(add_alpha_day_stand + saf)
+    alpha_d = alpha_d[alpha_d['code']!=600485]
     factor_data = possess_alpha(alpha_d,saf)
     df_resid=pd.DataFrame(index=stockList,columns =factor_data['date'])
     n=0
@@ -74,6 +76,7 @@ def factor_return(daynum):
                                          [x for x in date_list if x >='2017-01-01' ]])
     n=0
     for ar in resid_value:
+#        ar = 'alpha_149_resid.csv'
         try:
             resid_val = pd.read_csv(add_resid_value_day + ar) 
         except:
@@ -99,19 +102,19 @@ def factor_return(daynum):
             X = np.array(X.fillna(0))        
             factor_freturn.loc[n,date] = beta_value(Y, X)[-1]
         n=n+1
-    factor_freturn.to_csv(add_factor_freturn+'factors_return_%s.csv'%daynum,index = False)
+    factor_freturn.to_csv(add_factor_return+'factors_return_%s.csv'%daynum,index = False)
     return 0
 
 for daynum in range(1,6):
     factor_return(daynum)
 
 # 第四步 检验因子有效性
-freturn_value = os.listdir(add_factor_freturn)
-test = pd.read_csv('G:/short_period_mf/factor_freturn_day/factors_return_1.csv')
+freturn_value = os.listdir(add_factor_return)
+#df = pd.read_csv(r'G:\short_period_mf\alpha_day\alpha_001.csv')
 # 计算年化收益率和IR
 for ndays in range(1,6):
     df = pd.DataFrame(columns=['factors','return_peryear','IR'])
-    f_return = pd.read_csv(add_factor_freturn+'factors_return_%s.csv'%ndays)
+    f_return = pd.read_csv(add_factor_return+'factors_return_%s.csv'%ndays)
     df['factors'] = f_return['alpha_factors']
     df['return_peryear'] = f_return[f_return.columns[1:]].apply( \
                                   lambda x : ((x/ndays).mean())*252,axis=1)
@@ -122,30 +125,42 @@ for ndays in range(1,6):
 
 # 第五步 统计因子收益
 factors_return_IR = os.listdir(add_factor_freturn_IR)
-df = pd.DataFrame(columns=['factors_return_mean','IR_mean'])
+df = pd.DataFrame(columns=['fore_days','factors_return_mean','IR_mean'])
 n=0
 for frI in factors_return_IR:
     frI_return = pd.read_csv(add_factor_freturn_IR+frI)
+    df.loc[n,'fore_days'] = frI[18]
     df.loc[n,'factors_return_mean'] = frI_return['return_peryear'].mean()
     df.loc[n,'IR_mean'] = frI_return['IR'].mean()
     n = n+1
+# df结果如下：
+#  fore_days factors_return_mean  IR_mean
+#0         1             8.45121  1.49327
+#1         2             4.06837  1.19733
+#2         3             2.91028  1.67039
+#3         4             2.45544  2.25113
+#4         5             2.02355  2.36888
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+# 第六步 找出五个预测期效果都比较好的因子  
+factors_return_IR = os.listdir(add_factor_freturn_IR)
+df_score = pd.DataFrame(columns=['factors'])
+for frI in factors_return_IR:
+    frI_return2 = pd.read_csv(add_factor_freturn_IR+frI)
+    frI_return2.sort_values(by='return_peryear',axis=0,ascending=True,inplace=True)
+    frI_return2['score_return'] = list(range(1,192))
+    frI_return2.sort_values(by='IR',axis=0,ascending=True,inplace=True)
+    frI_return2['score_IR'] = list(range(1,192))
+    frI_return2['score_%s'%frI[18]] = frI_return2['score_return']+ frI_return2['score_IR']
+    if frI == 'factors_return_IR_1.csv':
+        df_score['factors'] = frI_return2['factors']
+    frI_return2 = frI_return2[['factors','return_peryear','IR','score_%s'%frI[18]]]
+    frI_return2.rename(columns={'return_peryear':'return_%s'%frI[18],\
+                                'IR':'IR_%s'%frI[18]},inplace = True)
+    df_score = pd.merge(df_score,frI_return2,on='factors',how='inner')
+df_score['score_res'] = df_score['score_1']+df_score['score_2']+df_score['score_3']\
+                            +df_score['score_4']+df_score['score_5']
+df_score.sort_values(by='score_res',axis=0,ascending=False,inplace=True)
+df_score.to_csv(add_effecive_factors_day+'effecive_factors_day_20180523.csv',index=False)
 
 
 

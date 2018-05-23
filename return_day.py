@@ -11,8 +11,9 @@ import feather as ft
 import pandas as pd
 import pickle
 
-code_HS300 = pd.read_excel(add_gene_file + 'data_mkt.xlsx',sheetname='HS300')
+code_HS300 = pd.read_excel(add_gene_file + 'index_stockcodes.xlsx',sheetname='HS300')
 stockList = list(code_HS300['code'][:])
+stockList.remove('600485.SH')
 stockList2 = list(map(lambda x : x[:6],stockList))
 
 daily = ft.read_dataframe(add_day_file + 'marketData.feather')

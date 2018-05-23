@@ -12,11 +12,12 @@ import pandas as pd
 from functions import *
 import numpy as np
 
-code_HS300 = pd.read_excel(add_gene_file + 'data_mkt.xlsx',sheetname='HS300')
+code_HS300 = pd.read_excel(add_gene_file + 'index_stockcodes.xlsx',sheetname='HS300')
 stockList = list(code_HS300['code'][:])
+stockList.remove('600485.SH') # 该股票2016年12月24日起停牌至今（2018年5月23日）
 
 # 风格因子没有标准化
-def poss_style_factors(end_date='2017-01-01')
+def poss_style_factors(end_date='2017-01-01'):
     style_filenames = os.listdir(add_style_factors)
     style_filenames.pop(-3) # 不要NLSize数据
     for filename in style_filenames:

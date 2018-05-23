@@ -28,7 +28,8 @@ for fn=1:length(factors_file)
     mid = kron(csvread(factors_file{fn}),ones(1,240));
     data_str.(factors_file{fn}(1:end-4)) =  mid(:,7:end);
 end
-clear day_dateList factors_file fln indus_fln industry industry_str mid stockList min_dateList
+clear day_dateList factors_file fln indus_fln industry ...
+        industry_str mid stockList min_dateList fn
 % alpha因子数据
 % for n=1:191
 %     factors_reuturn = readtable(strcat('alpha_',alpha_filename(n),'.csv'),'ReadVariableNames',true);
@@ -37,10 +38,11 @@ clear day_dateList factors_file fln indus_fln industry industry_str mid stockLis
 % end
 fldname = fieldnames(data_str);
 fldname = fldname(4:end,1);
-for n=167:191
+for n=184:191
+    n
     X_matrix = zeros(299,38);
     result = zeros(299,54474);
-    Y = csvread(strcat('alpha_',alpha_filename(n),'.csv'),1,1,[1,1,299,54474]);
+    Y = csvread(strcat('standard_alpha_',alpha_filename(n),'.csv'),1,1,[1,1,299,54474]);
     for min_len=1:length(data_str.trade_min)
         for fn=1:length(fldname)
             X_matrix(:,fn) = data_str.(fldname{fn})(:,min_len);

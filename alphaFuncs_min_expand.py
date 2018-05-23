@@ -18,9 +18,11 @@ add_mintime_SerialFile='G:/short_period_mf/trade_min.date'
 ###############################################################################
 ###############################################################################
 
+factors_expand = 240  #日
+#factors_expand = 60  #日
 
 def alpha_all(stockList, dateList, savepath):
-    for i in range(1, 192):
+    for i in range(155, 192):
         try:
             tmp = eval('alpha_{:03}(stockList, dateList)'.format(i))
             tmp.to_csv(savepath + 'alpha_{:03}.csv'.format(i))
@@ -31,7 +33,7 @@ def alpha_all(stockList, dateList, savepath):
 def alpha_001(stockList, dateList):
     # (-1 * CORR(RANK(DELTA(LOG(VOLUME), 1)), RANK(((CLOSE - OPEN) / OPEN)), 6))
     fields = 'open, close, volume'
-    offday = -7
+    offday = -7*factors_expand
 
     openData, closeData, volData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -45,7 +47,7 @@ def alpha_001(stockList, dateList):
 def alpha_002(stockList, dateList):
     # (-1 * DELTA((((CLOSE - LOW) - (HIGH - CLOSE)) / (HIGH - LOW)), 1))
     fields = 'close, high, low'
-    offday = -1
+    offday = -1*factors_expand
 
     closeData, highData, lowData = generateDataFrame(stockList, dateList, fields, offday)
     
@@ -59,7 +61,7 @@ def alpha_002(stockList, dateList):
 def alpha_003(stockList, dateList):
     # SUM((CLOSE=DELAY(CLOSE,1)?0:CLOSE-(CLOSE>DELAY(CLOSE,1)?MIN(LOW,DELAY(CLOSE,1)):MAX(HIGH,DELAY(CLOSE,1)))),6)
     fields = 'close, high, low'
-    offday = -7
+    offday = -7*factors_expand
 
     closeData, highData, lowData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -76,7 +78,7 @@ def alpha_003(stockList, dateList):
 def alpha_004(stockList, dateList):
     # (STD(CLOSE, 8) / (SUM(CLOSE, 8) / 8)) * (STD(VOLUME, 8) / (SUM(VOLUME, 8) / 8)) 
     fields = 'close, volume'
-    offday = -10
+    offday = -10*factors_expand
     closeData, volData = generateDataFrame(stockList, dateList, fields, offday)
 
     sum_1 = dfSum(closeData, 8) / 8.0
@@ -92,7 +94,7 @@ def alpha_004(stockList, dateList):
 def alpha_005(stockList, dateList):
     # (-1 * TSMAX(CORR(TSRANK(VOLUME, 5), TSRANK(HIGH, 5), 5), 3))
     fields = 'high, volume'
-    offday = -13
+    offday = -13*factors_expand
     highData, volData = generateDataFrame(stockList, dateList, fields, offday)
 
     corr_1 = rollCorr(tsRank(volData, 5), tsRank(highData, 5), 5)
@@ -104,7 +106,7 @@ def alpha_005(stockList, dateList):
 def alpha_006(stockList, dateList):
     # (RANK(SIGN(DELTA((((OPEN * 0.85) + (HIGH * 0.15))), 4)))* -1)
     fields = 'open, high'
-    offday = -4
+    offday = -4*factors_expand
     openData, highData = generateDataFrame(stockList, dateList, fields, offday)
 
     delta_1 = dfDelta(openData * 0.85 + highData * 0.15, 4)
@@ -116,7 +118,7 @@ def alpha_006(stockList, dateList):
 def alpha_007(stockList, dateList):
     # ((RANK(TSMAX((VWAP - CLOSE), 3)) + RANK(TSMIN((VWAP - CLOSE), 3))) * RANK(DELTA(VOLUME, 3)))
     fields = 'close, volume, vwap'
-    offday = -3
+    offday = -3*factors_expand
 
     closeData, volData, vwapData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -132,7 +134,7 @@ def alpha_007(stockList, dateList):
 def alpha_008(stockList, dateList):
     # RANK(DELTA(((((HIGH + LOW) / 2) * 0.2) + (VWAP * 0.8)), 4) * -1)
     fields = 'high, low, vwap'
-    offday = -4
+    offday = -4*factors_expand
 
     highData, lowData, vwapData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -146,7 +148,7 @@ def alpha_008(stockList, dateList):
 def alpha_009(stockList, dateList):
     # SMA(((HIGH+LOW)/2-(DELAY(HIGH,1)+DELAY(LOW,1))/2)*(HIGH-LOW)/VOLUME,7,2)
     fields = 'high, low, volume'
-    offday = -8
+    offday = -8*factors_expand
 
     highData, lowData, volData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -160,7 +162,7 @@ def alpha_009(stockList, dateList):
 def alpha_010(stockList, dateList):
     # (RANK(TSMAX(((RET < 0) ? STD(RET, 20) : CLOSE)^2),5))
     fields = 'close, p_change'
-    offday = -25
+    offday = -25*factors_expand
 
     closeData, retData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -175,7 +177,7 @@ def alpha_011(stockList, dateList):
     # SUM(((CLOSE-LOW)-(HIGH-CLOSE))/(HIGH-LOW)*VOLUME,6)
 
     fields = 'close, high, low, volume'
-    offday = -6
+    offday = -6*factors_expand
 
     closeData, highData, lowData, volData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -189,7 +191,7 @@ def alpha_011(stockList, dateList):
 def alpha_012(stockList, dateList):
     # (RANK((OPEN - (SUM(VWAP, 10) / 10)))) * (-1 * (RANK(ABS((CLOSE - VWAP)))))
     fields = 'open, close, vwap'
-    offday = -10
+    offday = -10*factors_expand
 
     openData, closeData, vwapData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -203,7 +205,7 @@ def alpha_012(stockList, dateList):
 def alpha_013(stockList, dateList):
     # (((HIGH * LOW)^0.5) - VWAP)
     fields = 'high, low, vwap'
-    offday = 0
+    offday = 0*factors_expand
 
     highData, lowData, vwapData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -215,7 +217,7 @@ def alpha_013(stockList, dateList):
 def alpha_014(stockList, dateList):
     # CLOSE - DELAY(CLOSE,5)
     fields = 'close'
-    offday = -5
+    offday = -5*factors_expand
     
     closeData = generateDataFrame(stockList, dateList, fields, offday)
     
@@ -227,7 +229,7 @@ def alpha_014(stockList, dateList):
 def alpha_015(stockList, dateList):
     # OPEN/DELAY(CLOSE,1)-1
     fields = 'open, close'
-    offday = -1
+    offday = -1*factors_expand
 
     openData, closeData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -239,7 +241,7 @@ def alpha_015(stockList, dateList):
 def alpha_016(stockList, dateList):
     # (-1 * TSMAX(RANK(CORR(RANK(VOLUME), RANK(VWAP), 5)), 5))
     fields = 'volume, vwap'
-    offday = -10
+    offday = -10*factors_expand
 
     volData, vwapData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -252,7 +254,7 @@ def alpha_016(stockList, dateList):
 def alpha_017(stockList, dateList):
     # RANK((VWAP - TSMAX(VWAP, 15))) * DELTA(CLOSE, 5)
     fields = 'close, vwap'
-    offday = -15
+    offday = -15*factors_expand
 
     closeData, vwapData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -266,7 +268,7 @@ def alpha_017(stockList, dateList):
 def alpha_018(stockList, dateList):
     # CLOSE/DELAY(CLOSE,5)
     fields = 'close'
-    offday = -5
+    offday = -5*factors_expand
 
     closeData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -278,7 +280,7 @@ def alpha_018(stockList, dateList):
 def alpha_019(stockList, dateList):
     # (CLOSE<DELAY(CLOSE,5)?(CLOSE-DELAY(CLOSE,5))/DELAY(CLOSE,5):(CLOSE=DELAY(CLOSE,5)?0:(CLOSE-DELAY(CLOSE,5))/CLOSE))
     fields = 'close'
-    offday = -5
+    offday = -5*factors_expand
 
     closeData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -294,7 +296,7 @@ def alpha_019(stockList, dateList):
 def alpha_020(stockList, dateList):
     # (CLOSE-DELAY(CLOSE,6))/DELAY(CLOSE,6)*100
     fields = 'close'
-    offday = -6
+    offday = -6*factors_expand
 
     closeData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -306,7 +308,7 @@ def alpha_020(stockList, dateList):
 def alpha_021(stockList, dateList):
     # REGBETA(MEAN(CLOSE,6),SEQUENCE(6),6)
     fields = 'close'
-    offday = -12
+    offday = -12*factors_expand
 
     closeData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -318,7 +320,7 @@ def alpha_021(stockList, dateList):
 def alpha_022(stockList, dateList):
     # SMA(((CLOSE-MEAN(CLOSE,6))/MEAN(CLOSE,6)-DELAY((CLOSE-MEAN(CLOSE,6))/MEAN(CLOSE,6),3)),12,1)
     fields = 'close'
-    offday = -19
+    offday = -19*factors_expand
 
     closeData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -333,7 +335,7 @@ def alpha_023(stockList, dateList):
     # SMA((CLOSE>DELAY(CLOSE,1)?STD(CLOSE:20),0),20,1)/(SMA((CLOSE>DELAY(CLOSE,1)?
     # STD(CLOSE,20):0),20,1)+SMA((CLOSE<=DELAY(CLOSE,1)?STD(CLOSE,20):0),20,1))*100
     fields = 'close'
-    offday = -40
+    offday = -40*factors_expand
 
     closeData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -352,7 +354,7 @@ def alpha_023(stockList, dateList):
 def alpha_024(stockList, dateList):
     # SMA(CLOSE-DELAY(CLOSE,5),5,1)
     fields = 'close'
-    offday = -10
+    offday = -10*factors_expand
 
     closeData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -366,7 +368,7 @@ def alpha_025(stockList, dateList):
     # (1 - RANK(DECAYLINEAR((VOLUME / MEAN(VOLUME,20)), 9)))))) *
     # (1 + RANK(SUM(RET, 210))))
     fields = 'close, volume, p_change'
-    offday = -240
+    offday = -240*factors_expand
 
     closeData, volData, retData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -380,7 +382,7 @@ def alpha_025(stockList, dateList):
 def alpha_026(stockList, dateList):
     # ((((SUM(CLOSE, 7) / 7) - CLOSE)) + ((CORR(VWAP, DELAY(CLOSE, 5), 230))))
     fields = 'close, vwap'
-    offday = -235
+    offday = -235*factors_expand
 
     closeData, vwapData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -395,7 +397,7 @@ def alpha_027(stockList, dateList):
     # WMA((CLOSE-DELAY(CLOSE,3))/DELAY(CLOSE,3)*100+
     # (CLOSE-DELAY(CLOSE,6))/DELAY(CLOSE,6)*100,12)
     fields = 'close'
-    offday = -106
+    offday = -106*factors_expand
 
     closeData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -411,7 +413,7 @@ def alpha_028(stockList, dateList):
     # 3*SMA((CLOSE-TSMIN(LOW,9))/(TSMAX(HIGH,9)-TSMIN(LOW,9))*100,3,1)-
     # 2*SMA(SMA((CLOSE-TSMIN(LOW,9))/(TSMAX(HIGH,9)-TSMAX(LOW,9))*100,3,1),3,1)
     fields = 'close, high,  low'
-    offday = -30
+    offday = -30*factors_expand
 
     closeData, highData, lowData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -427,7 +429,7 @@ def alpha_028(stockList, dateList):
 def alpha_029(stockList, dateList):
     # (CLOSE-DELAY(CLOSE,6))/DELAY(CLOSE,6)*VOLUME
     fields = 'close, volume'
-    offday = -6
+    offday = -6*factors_expand
 
     closeData, volData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -439,7 +441,7 @@ def alpha_029(stockList, dateList):
 def alpha_030(stockList, dateList):
     # WMA((REGRESI(CLOSE/DELAY(CLOSE)-1,Volume,60))^2,20)
     fields = 'close, volume'
-    offday = -81
+    offday = -81*factors_expand
 
     closeData, volumeData = generateDataFrame(stockList, dateList, fields, offday)
     temp = dfREGRESI(closeData.pct_change(), volumeData.mean(axis=1) + 1, 60)
@@ -452,7 +454,7 @@ def alpha_030(stockList, dateList):
 def alpha_031(stockList, dateList):
     # (CLOSE-MEAN(CLOSE,12))/MEAN(CLOSE,12)*100
     fields = 'close'
-    offday = -12
+    offday = -12*factors_expand
 
     closeData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -464,7 +466,7 @@ def alpha_031(stockList, dateList):
 def alpha_032(stockList, dateList):
     # (-1 * SUM(RANK(CORR(RANK(HIGH), RANK(VOLUME), 3)), 3))
     fields = 'high, volume'
-    offday = -6
+    offday = -6*factors_expand
 
     highData, volData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -479,7 +481,7 @@ def alpha_033(stockList, dateList):
     # RANK(((SUM(RET, 240) - SUM(RET, 20)) / 220))) *
     # TSRANK(VOLUME, 5))
     fields = 'low, volume, p_change'
-    offday = -240
+    offday = -240*factors_expand
 
     lowData, volData, retData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -494,7 +496,7 @@ def alpha_033(stockList, dateList):
 def alpha_034(stockList, dateList):
     # MEAN(CLOSE,12)/CLOSE
     fields = 'close'
-    offday = -12
+    offday = -12*factors_expand
 
     closeData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -507,7 +509,7 @@ def alpha_035(stockList, dateList):
     # (MIN(RANK(DECAYLINEAR(DELTA(OPEN, 1), 15)), RANK(DECAYLINEAR(CORR((VOLUME), ((OPEN * 0.65) +
     # (OPEN *0.35)), 17),7))) * -1)
     fields = 'open, close, volume'
-    offday = -24
+    offday = -24*factors_expand
 
     openData, closeData, volData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -522,7 +524,7 @@ def alpha_035(stockList, dateList):
 def alpha_036(stockList, dateList):
     # RANK(SUM(CORR(RANK(VOLUME), RANK(VWAP)), 6), 2)
     fields = 'volume, vwap'
-    offday = -8
+    offday = -8*factors_expand
 
     volData, vwapData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -535,7 +537,7 @@ def alpha_036(stockList, dateList):
 def alpha_037(stockList, dateList):
     # (-1 * RANK(((SUM(OPEN, 5) * SUM(RET, 5)) - DELAY((SUM(OPEN, 5) * SUM(RET, 5)), 10))))
     fields = 'open, p_change'
-    offday = -15
+    offday = -15*factors_expand
 
     openData, retData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -549,7 +551,7 @@ def alpha_037(stockList, dateList):
 def alpha_038(stockList, dateList):
     # (((SUM(HIGH, 20) / 20) < HIGH) ? (-1 * DELTA(HIGH, 2)): DELTA(HIGH, 2))
     fields = 'high'
-    offday = -20
+    offday = -20*factors_expand
 
     highData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -565,7 +567,7 @@ def alpha_039(stockList, dateList):
     # ((RANK(DECAYLINEAR(DELTA((CLOSE), 2),8)) - RANK(DECAYLINEAR(CORR(((VWAP * 0.3) + (OPEN * 0.7)),
     # SUM(MEAN(VOLUME,180), 37), 14), 12))) * -1)
     fields = 'open, close, volume, vwap'
-    offday = -243
+    offday = -243*factors_expand
 
     openData, closeData, volData, vwapData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -586,7 +588,7 @@ def alpha_039(stockList, dateList):
 def alpha_040(stockList, dateList):
     # alpha_040 = SUM((CLOSE > DELAY(CLOSE, 1)?VOLUME:0), 26) / SUM((CLOSE <= DELAY(CLOSE, 1)?VOLUME:0), 26)*100
     fields = 'close, volume'
-    offday = -27
+    offday = -27*factors_expand
 
     closeData, volData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -603,7 +605,7 @@ def alpha_040(stockList, dateList):
 def alpha_041(stockList, dateList):
     # (RANK(MAX(DELTA((VWAP), 3), 5))* -1)
     fields = 'vwap'
-    offday = -8
+    offday = -8*factors_expand
 
     vwpData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -617,7 +619,7 @@ def alpha_041(stockList, dateList):
 def alpha_042(stockList, dateList):
     # ((-1 * RANK(STD(HIGH, 10))) * CORR(HIGH, VOLUME, 10))
     fields = 'high, volume'
-    offday = -10
+    offday = -10*factors_expand
 
     highData, volData = generateDataFrame(stockList, dateList, fields, offday)
     highStd = dfSum(highData, 10)
@@ -631,7 +633,7 @@ def alpha_042(stockList, dateList):
 def alpha_043(stockList, dateList):
     # alpha_043 = SUM(CLOSE>DELAY(CLOSE,1)? VOLUME : ( CLOSE < DELAY(CLOSE ,1)? -VOLUME : 0),6)
     fields = 'close, volume'
-    offday = -7
+    offday = -7*factors_expand
 
     closeData, volData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -648,7 +650,7 @@ def alpha_044(stockList, dateList):
     # (TSRANK(DECAYLINEAR(CORR(((LOW )), MEAN(VOLUME,10), 7), 6),4) + TSRANK(DECAYLINEAR(DELTA((VWAP),
     # 3), 10), 15))
     fields = 'low  , volume  , vwap'
-    offday = -28
+    offday = -28*factors_expand
 
     lowData, volData, vwapData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -667,7 +669,7 @@ def alpha_044(stockList, dateList):
 def alpha_045(stockList, dateList):
     # (RANK(DELTA((((CLOSE * 0.6) + (OPEN *0.4))), 1)) * RANK(CORR(VWAP, MEAN(VOLUME,150), 15)))
     fields = 'open, close, volume, vwap'
-    offday = -165
+    offday = -165*factors_expand
 
     openData, closeData, volData, vwapData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -685,7 +687,7 @@ def alpha_045(stockList, dateList):
 def alpha_046(stockList, dateList):
     # (MEAN(CLOSE,3)+MEAN(CLOSE,6)+MEAN(CLOSE,12)+MEAN(CLOSE,24))/(4*CLOSE)
     fields = 'close'
-    offday = -24
+    offday = -24*factors_expand
 
     closeData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -698,7 +700,7 @@ def alpha_046(stockList, dateList):
 def alpha_047(stockList, dateList):
     # SMA((TSMAX(HIGH,6)-CLOSE)/(TSMAX(HIGH,6)-TSMIN(LOW,6))*100,9,1)
     fields = 'close, high,  low'
-    offday = -15
+    offday = -15*factors_expand
 
     closeData, highData, lowData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -716,7 +718,7 @@ def alpha_048(stockList, dateList):
     # (-1*((RANK(((SIGN((CLOSE - DELAY(CLOSE, 1))) + SIGN((DELAY(CLOSE, 1) - DELAY(CLOSE, 2)))) +
     # SIGN((DELAY(CLOSE, 2) - DELAY(CLOSE, 3)))))) * SUM(VOLUME, 5)) / SUM(VOLUME, 20))
     fields = 'close, volume'
-    offday = -20
+    offday = -20*factors_expand
 
     closeData, volData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -739,7 +741,7 @@ def alpha_049(stockList, dateList):
     # OW-DELAY(LOW,1)))),12)+SUM(((HIGH+LOW)<=(DELAY(HIGH,1)+DELAY(LOW,1))?0:MAX(ABS(HIGH-DELAY(HI
     # GH,1)),ABS(LOW-DELAY(LOW,1)))),12))
     fields = 'high, low'
-    offday = -13
+    offday = -13*factors_expand
 
     highData, lowData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -775,7 +777,7 @@ def alpha_050(stockList, dateList):
     # MAX(ABS(HIGH-DELAY(HIGH,1)),ABS(LOW-DELAY(LOW,1)))),12)+SUM(((HIGH+LOW)<=(DELAY(HIGH,1)+DELA
     # Y(LOW,1))?0:MAX(ABS(HIGH-DELAY(HIGH,1)),ABS(LOW-DELAY(LOW,1)))),12))
     fields = 'high, low'
-    offday = -13
+    offday = -13*factors_expand
 
     highData, lowData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -803,7 +805,7 @@ def alpha_051(stockList, dateList):
     # OW-DELAY(LOW,1)))),12)+SUM(((HIGH+LOW)>=(DELAY(HIGH,1)+DELAY(LOW,1))?0:MAX(ABS(HIGH-DELAY(HI
     # GH,1)),ABS(LOW-DELAY(LOW,1)))),12))
     fields = 'high, low'
-    offday = -13
+    offday = -13*factors_expand
 
     highData, lowData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -828,7 +830,7 @@ def alpha_051(stockList, dateList):
 def alpha_052(stockList, dateList):
     # alpha_052 =SUM(MAX(0,HIGH-DELAY((HIGH+LOW+CLOSE)/3,1)),26)/SUM(MAX(0,DELAY((HIGH+LOW+CLOSE)/3,1)-LOW),26)*100
     fields = 'close, high, low'
-    offday = -27
+    offday = -27*factors_expand
 
     closeData, highData, lowData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -846,7 +848,7 @@ def alpha_052(stockList, dateList):
 def alpha_053(stockList, dateList):
     # alpha_053 =COUNT(CLOSE>DELAY(CLOSE,1),12)/12*100
     fields = 'close'
-    offday = -13
+    offday = -13*factors_expand
 
     closeData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -860,7 +862,7 @@ def alpha_053(stockList, dateList):
 def alpha_054(stockList, dateList):
     # (-1 * RANK((STD(ABS(CLOSE - OPEN)) + (CLOSE - OPEN)) + CORR(CLOSE, OPEN,10)))
     fields = 'close , open'
-    offday = -10
+    offday = -10*factors_expand
 
     closeData, openData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -885,7 +887,7 @@ def alpha_055(stockList, dateList):
     (CLOSE,1)),ABS(LOW-DELAY(CLOSE,1))),20)
     '''
     fields = 'high, close, open, low'
-    offday = -13
+    offday = -13*factors_expand
 
     highData, closeData, openData, lowData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -917,7 +919,7 @@ def alpha_056(stockList, dateList):
     # (RANK((OPEN - TSMIN(OPEN, 12))) < RANK((RANK(CORR(SUM(((HIGH + LOW) / 2), 19),
     # SUM(MEAN(VOLUME,40), 19), 13))^5)))
     fields = 'high, volume, open, low'
-    offday = -84
+    offday = -84*factors_expand
 
     highData, volumeData, openData, lowData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -936,7 +938,7 @@ def alpha_056(stockList, dateList):
 def alpha_057(stockList, dateList):
     # SMA((CLOSE-TSMIN(LOW,9))/(TSMAX(HIGH,9)-TSMIN(LOW,9))*100,3,1)
     fields = 'high, close, low'
-    offday = -12
+    offday = -12*factors_expand
 
     highData, closeData, lowData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -950,7 +952,7 @@ def alpha_057(stockList, dateList):
 def alpha_058(stockList, dateList):
     # COUNT(CLOSE>DELAY(CLOSE,1),20)/20*100
     fields = 'close'
-    offday = -21
+    offday = -21*factors_expand
 
     closeData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -966,7 +968,7 @@ def alpha_059(stockList, dateList):
     # SUM((CLOSE=DELAY(CLOSE,1)?0:CLOSE-(CLOSE>DELAY(CLOSE,1)?MIN(LOW,DELAY(CLOSE,1)):MAX(HIGH,D
     # ELAY(CLOSE,1)))),20)
     fields = 'close, high, low'
-    offday = -21
+    offday = -21*factors_expand
 
     closeData, highData, lowData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -984,7 +986,7 @@ def alpha_059(stockList, dateList):
 def alpha_060(stockList, dateList):
     # SUM(((CLOSE-LOW)-(HIGH-CLOSE))/(HIGH-LOW)*VOLUME,20)
     fields = 'close, high, low, volume'
-    offday = -20
+    offday = -20*factors_expand
 
     closeData, highData, lowData, volData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -999,7 +1001,7 @@ def alpha_061(stockList, dateList):
     # (MAX(RANK(DECAYLINEAR(DELTA(VWAP, 1), 12)),
     # RANK(DECAYLINEAR(RANK(CORR((LOW),MEAN(VOLUME,80), 8)), 17))) * -1)
     fields = 'low, volume, vwap '
-    offday = -105
+    offday = -105*factors_expand
 
     lowData, volData, vwapData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -1015,7 +1017,7 @@ def alpha_061(stockList, dateList):
 def alpha_062(stockList, dateList):
     # (-1 * CORR(HIGH, RANK(VOLUME), 5))
     fields = 'high, volume'
-    offday = -5
+    offday = -5*factors_expand
 
     highData, volData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -1027,7 +1029,7 @@ def alpha_062(stockList, dateList):
 def alpha_063(stockList, dateList):
     # SMA(MAX(CLOSE-DELAY(CLOSE,1),0),6,1)/SMA(ABS(CLOSE-DELAY(CLOSE,1)),6,1)*100
     fields = 'close'
-    offday = -7
+    offday = -7*factors_expand
 
     closeData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -1045,7 +1047,7 @@ def alpha_064(stockList, dateList):
     # RANK(DECAYLINEAR(MAX(CORR(RANK(CLOSE), RANK(MEAN(VOLUME,60)), 4), 13), 14))) * -1)
 
     fields = 'close, volume, vwap'
-    offday = -91
+    offday = -91*factors_expand
 
     closeData, volData, vwapData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -1061,7 +1063,7 @@ def alpha_064(stockList, dateList):
 def alpha_065(stockList, dateList):
     # MEAN(CLOSE,6)/CLOSE
     fields = 'close'
-    offday = -6
+    offday = -6*factors_expand
 
     closeData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -1073,7 +1075,7 @@ def alpha_065(stockList, dateList):
 def alpha_066(stockList, dateList):
     # (CLOSE-MEAN(CLOSE,6))/MEAN(CLOSE,6)*100
     fields = 'close'
-    offday = -6
+    offday = -6*factors_expand
 
     closeData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -1086,7 +1088,7 @@ def alpha_066(stockList, dateList):
 def alpha_067(stockList, dateList):
     # SMA(MAX(CLOSE-DELAY(CLOSE,1),0),24,1)/SMA(ABS(CLOSE-DELAY(CLOSE,1)),24,1)*100
     fields = 'close'
-    offday = -25
+    offday = -25*factors_expand
 
     closeData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -1102,7 +1104,7 @@ def alpha_067(stockList, dateList):
 def alpha_068(stockList, dateList):
     # SMA(((HIGH+LOW)/2-(DELAY(HIGH,1)+DELAY(LOW,1))/2)*(HIGH-LOW)/VOLUME,15,2)
     fields = 'high, low, volume'
-    offday = -16
+    offday = -16*factors_expand
 
     highData, lowData, volData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -1116,7 +1118,7 @@ def alpha_069(stockList, dateList):
     # (SUM(DTM,20)>SUM(DBM,20)？ (SUM(DTM,20)-SUM(DBM,20))/SUM(DTM,20)： (SUM(DTM,20)=SUM(DBM,20)？
     # 0(SUM(DTM,20)-SUM(DBM,20))/SUM(DBM,20)))
     fields = 'open, high, low'
-    offday = -21
+    offday = -21*factors_expand
 
     openData, highData, lowData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -1138,7 +1140,7 @@ def alpha_069(stockList, dateList):
 def alpha_070(stockList, dateList):
     # STD(AMOUNT,6)
     fields = 'amount'
-    offday = -6
+    offday = -6*factors_expand
 
     amountData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -1150,7 +1152,7 @@ def alpha_070(stockList, dateList):
 def alpha_071(stockList, dateList):
     # (CLOSE-MEAN(CLOSE,24))/MEAN(CLOSE,24)*100
     fields = 'close'
-    offday = -24
+    offday = -24*factors_expand
 
     closeData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -1163,7 +1165,7 @@ def alpha_071(stockList, dateList):
 def alpha_072(stockList, dateList):
     # SMA((TSMAX(HIGH,6)-CLOSE)/(TSMAX(HIGH,6)-TSMIN(LOW,6))*100,15,1)
     fields = 'close, high, low'
-    offday = -21
+    offday = -21*factors_expand
 
     closeData, highData, lowData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -1178,7 +1180,7 @@ def alpha_073(stockList, dateList):
     # ((TSRANK(DECAYLINEAR(DECAYLINEAR(CORR((CLOSE), VOLUME, 10), 16), 4), 5) -
     # RANK(DECAYLINEAR(CORR(VWAP, MEAN(VOLUME,30), 4),3))) * -1)
     fields = 'close, volume, vwap'
-    offday = -37
+    offday = -37*factors_expand
 
     closeData, volData, vwapData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -1194,7 +1196,7 @@ def alpha_074(stockList, dateList):
     # (RANK(CORR(SUM(((LOW * 0.35) + (VWAP * 0.65)), 20),
     # SUM(MEAN(VOLUME,40), 20), 7)) + RANK(CORR(RANK(VWAP), RANK(VOLUME), 6)))
     fields = 'low, volume, vwap'
-    offday = -67
+    offday = -67*factors_expand
 
     lowData, volData, vwapData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -1210,7 +1212,7 @@ def alpha_074(stockList, dateList):
 def alpha_075(stockList, dateList):
     # COUNT(CLOSE>OPEN & MARKETCLOSE<MARKETOPEN,50) / COUNT(MARKETCLOSE<BMARKETOPEN,50)
     fields = 'open,close'
-    offday = -50
+    offday = -50*factors_expand
 
     openData, closeData = generateDataFrame(stockList, dateList, fields, offday)
     marketOpen, marketClose = openData.mean(axis=1), closeData.mean(axis=1)
@@ -1225,7 +1227,7 @@ def alpha_075(stockList, dateList):
 def alpha_076(stockList, dateList):
     # STD(ABS((CLOSE/DELAY(CLOSE,1)-1))/VOLUME,20)/MEAN(ABS((CLOSE/DELAY(CLOSE,1)-1))/VOLUME,20)
     fields = 'close, volume'
-    offday = -21
+    offday = -21*factors_expand
 
     closeData, volData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -1240,7 +1242,7 @@ def alpha_077(stockList, dateList):
     # MIN(RANK(DECAYLINEAR(((((HIGH + LOW) / 2) + HIGH) - (VWAP + HIGH)), 20)),
     #         RANK(DECAYLINEAR(CORR(((HIGH + LOW) / 2), MEAN(VOLUME,40), 3), 6)))
     fields = 'high, low, volume, vwap'
-    offday = -49
+    offday = -49*factors_expand
 
     highData, lowData, volData, vwapData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -1255,7 +1257,7 @@ def alpha_078(stockList, dateList):
     # ((HIGH+LOW+CLOSE)/3-MEAN((HIGH+LOW+CLOSE)/3,12))/
     # (0.0015*MEAN(ABS(CLOSE-MEAN((HIGH+LOW+CLOSE)/3,12)),12))
     fields = 'close,  high, low'
-    offday = -24
+    offday = -24*factors_expand
 
     closeData, highData, lowData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -1269,7 +1271,7 @@ def alpha_078(stockList, dateList):
 def alpha_079(stockList, dateList):
     # SMA(MAX(CLOSE-DELAY(CLOSE,1),0),12,1)/SMA(ABS(CLOSE-DELAY(CLOSE,1)),12,1)*100
     fields = 'close'
-    offday = -13
+    offday = -13*factors_expand
 
     closeData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -1284,7 +1286,7 @@ def alpha_079(stockList, dateList):
 def alpha_080(stockList, dateList):
     # (VOLUME-DELAY(VOLUME,5))/DELAY(VOLUME,5)*100
     fields = 'volume'
-    offday = -5
+    offday = -5*factors_expand
 
     volData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -1296,7 +1298,7 @@ def alpha_080(stockList, dateList):
 def alpha_081(stockList, dateList):
     # SMA(VOLUME,21,2)
     fields = 'volume'
-    offday = -21
+    offday = -21*factors_expand
 
     volData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -1308,7 +1310,7 @@ def alpha_081(stockList, dateList):
 def alpha_082(stockList, dateList):
     # SMA((TSMAX(HIGH,6)-CLOSE)/(TSMAX(HIGH,6)-TSMIN(LOW,6))*100,20,1)
     fields = 'close, high, low'
-    offday = -26
+    offday = -26*factors_expand
 
     closeData, highData, lowData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -1322,7 +1324,7 @@ def alpha_082(stockList, dateList):
 def alpha_083(stockList, dateList):
     # (-1 * RANK(COVIANCE(RANK(HIGH), RANK(VOLUME), 5)))
     fields = 'high, volume'
-    offday = -5
+    offday = -5*factors_expand
 
     highData, volData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -1334,7 +1336,7 @@ def alpha_083(stockList, dateList):
 def alpha_084(stockList, dateList):
     # SUM((CLOSE>DELAY(CLOSE,1)?VOLUME:(CLOSE<DELAY(CLOSE,1)?-VOLUME:0)),20)
     fields = 'close, volume'
-    offday = -30
+    offday = -30*factors_expand
 
     closeData, volData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -1350,7 +1352,7 @@ def alpha_084(stockList, dateList):
 def alpha_085(stockList, dateList):
     # (TSRANK((VOLUME / MEAN(VOLUME,20)), 20) * TSRANK((-1 * DELTA(CLOSE, 7)), 8))
     fields = 'close, volume'
-    offday = -40
+    offday = -40*factors_expand
 
     closeData, volData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -1369,7 +1371,7 @@ def alpha_086(stockList, dateList):
     #     ((DELAY(CLOSE, 10) - CLOSE) / 10)) < 0) ? 1 : ((-1 * 1) *
     #     (CLOSE - DELAY(CLOSE, 1)))))
     fields = 'close'
-    offday = -20
+    offday = -20*factors_expand
 
     closeData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -1387,7 +1389,7 @@ def alpha_087(stockList, dateList):
     # ((RANK(DECAYLINEAR(DELTA(VWAP, 4), 7)) + TSRANK(DECAYLINEAR(((((LOW * 0.9)
     # + (HIGH * 0.1)) - VWAP) / (OPEN - ((HIGH + LOW) / 2))), 11), 7)) * -1)
     fields = 'open, close, high, low, vwap'
-    offday = -18
+    offday = -18*factors_expand
 
     openData, closeData, highData, lowData, vwapData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -1402,7 +1404,7 @@ def alpha_087(stockList, dateList):
 def alpha_088(stockList, dateList):
     # (CLOSE-DELAY(CLOSE,20))/DELAY(CLOSE,20)*100
     fields = 'close'
-    offday = -20
+    offday = -20*factors_expand
 
     closeData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -1414,7 +1416,7 @@ def alpha_088(stockList, dateList):
 def alpha_089(stockList, dateList):
     # 2*(SMA(CLOSE,13,2)-SMA(CLOSE,27,2)-SMA(SMA(CLOSE,13,2)-SMA(CLOSE,27,2),10,2))
     fields = 'close'
-    offday = -37
+    offday = -37*factors_expand
 
     closeData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -1429,7 +1431,7 @@ def alpha_089(stockList, dateList):
 def alpha_090(stockList, dateList):
     # ( RANK(CORR(RANK(VWAP), RANK(VOLUME), 5)) * -1)
     fields = 'volume, vwap'
-    offday = -5
+    offday = -5*factors_expand
 
     volData, vwapData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -1441,7 +1443,7 @@ def alpha_090(stockList, dateList):
 def alpha_091(stockList, dateList):
     # ((RANK((CLOSE - MAX(CLOSE, 5)))*RANK(CORR((MEAN(VOLUME,40)), LOW, 5))) * -1)
     fields = 'close, low, volume'
-    offday = -45
+    offday = -45*factors_expand
 
     closeData, lowData, volData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -1456,7 +1458,7 @@ def alpha_092(stockList, dateList):
     # (MAX(RANK(DECAYLINEAR(DELTA(((CLOSE * 0.35) + (VWAP *0.65)), 2), 3)),
     # TSRANK(DECAYLINEAR(ABS(CORR((MEAN(VOLUME,180)), CLOSE, 13)), 5), 15)) * -1)
     fields = 'close, vwap, volume'
-    offday = -220
+    offday = -220*factors_expand
 
     closeData, vwapData, volData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -1476,7 +1478,7 @@ def alpha_092(stockList, dateList):
 def alpha_093(stockList, dateList):
     # SUM((OPEN>=DELAY(OPEN,1)?0:MAX((OPEN-LOW),(OPEN-DELAY(OPEN,1)))),20)
     fields = 'open, low'
-    offday = -21
+    offday = -21*factors_expand
 
     openData, lowData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -1492,7 +1494,7 @@ def alpha_093(stockList, dateList):
 def alpha_094(stockList, dateList):
     # SUM((CLOSE>DELAY(CLOSE,1)?VOLUME:(CLOSE<DELAY(CLOSE,1)?-VOLUME:0)),30)
     fields = 'close, volume'
-    offday = -31
+    offday = -31*factors_expand
 
     closeData, volData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -1508,7 +1510,7 @@ def alpha_094(stockList, dateList):
 def alpha_095(stockList, dateList):
     # STD(AMOUNT,20)
     fields = 'amount'
-    offday = -20
+    offday = -20*factors_expand
 
     amountData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -1520,7 +1522,7 @@ def alpha_095(stockList, dateList):
 def alpha_096(stockList, dateList):
     # SMA(SMA((CLOSE-TSMIN(LOW,9))/(TSMAX(HIGH,9)-TSMIN(LOW,9))*100,3,1),3,1)
     fields = 'high, low, close'
-    offday = -15
+    offday = -15*factors_expand
 
     highData, lowData, closeData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -1536,7 +1538,7 @@ def alpha_096(stockList, dateList):
 def alpha_097(stockList, dateList):
     # STD(VOLUME,10)
     fields = 'volume'
-    offday = -10
+    offday = -10*factors_expand
 
     volData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -1549,7 +1551,7 @@ def alpha_098(stockList, dateList):
     # ((((DELTA((SUM(CLOSE, 100) / 100), 100) / DELAY(CLOSE, 100)) < 0.05) || ((DELTA((SUM(CLOSE, 100) / 100), 100) /
     # DELAY(CLOSE, 100)) == 0.05)) ? (-1 * (CLOSE - TSMIN(CLOSE, 100))) : (-1 * DELTA(CLOSE, 3)))
     fields = 'close'
-    offday = -200
+    offday = -200*factors_expand
 
     closeData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -1567,7 +1569,7 @@ def alpha_098(stockList, dateList):
 def alpha_099(stockList, dateList):
     # (-1 * RANK(COVIANCE(RANK(CLOSE), RANK(VOLUME), 5)))
     fields = 'close, volume'
-    offday = -5
+    offday = -5*factors_expand
 
     closeData, volData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -1580,7 +1582,7 @@ def alpha_099(stockList, dateList):
 def alpha_100(stockList, dateList):
     # STD(VOLUME,20)
     fields = 'volume'
-    offday = -20
+    offday = -20*factors_expand
 
     volData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -1593,7 +1595,7 @@ def alpha_101(stockList, dateList):
     # ((RANK(CORR(CLOSE, SUM(MEAN(VOLUME,30), 37), 15)) < RANK(CORR(RANK(((HIGH * 0.1) + (VWAP * 0.9))),
     # RANK(VOLUME), 11))) * -1)
     fields = 'close, high, volume, vwap'
-    offday = -82
+    offday = -82*factors_expand
 
     closeData, highData, volData, vwapData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -1612,7 +1614,7 @@ def alpha_101(stockList, dateList):
 def alpha_102(stockList, dateList):
     # SMA(MAX(VOLUME-DELAY(VOLUME,1),0),6,1)/SMA(ABS(VOLUME-DELAY(VOLUME,1)),6,1)*100
     fields = 'volume'
-    offday = -7
+    offday = -7*factors_expand
 
     volData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -1629,7 +1631,7 @@ def alpha_102(stockList, dateList):
 def alpha_103(stockList, dateList):
     # ((20-LOWDAY(LOW,20))/20)*100
     fields = 'low'
-    offday = -20
+    offday = -20*factors_expand
 
     lowData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -1640,7 +1642,7 @@ def alpha_103(stockList, dateList):
 def alpha_104(stockList, dateList):
     # (-1 * (DELTA(CORR(HIGH, VOLUME, 5), 5) * RANK(STD(CLOSE, 20))))
     fields = 'close, high, volume'
-    offday = -20
+    offday = -20*factors_expand
 
     closeData, highData, volData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -1655,7 +1657,7 @@ def alpha_104(stockList, dateList):
 def alpha_105(stockList, dateList):
     # (-1 * CORR(RANK(OPEN), RANK(VOLUME), 10))
     fields = 'open, volume'
-    offday = -10
+    offday = -10*factors_expand
 
     openData, volData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -1668,7 +1670,7 @@ def alpha_105(stockList, dateList):
 def alpha_106(stockList, dateList):
     # CLOSE-DELAY(CLOSE,20)
     fields = 'close'
-    offday = -20
+    offday = -20*factors_expand
 
     closeData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -1680,7 +1682,7 @@ def alpha_106(stockList, dateList):
 def alpha_107(stockList, dateList):
     # (((-1 * RANK((OPEN - DELAY(HIGH, 1)))) * RANK((OPEN - DELAY(CLOSE, 1)))) * RANK((OPEN - DELAY(LOW, 1))))
     fields = 'open, close, high, low '
-    offday = -1
+    offday = -1*factors_expand
 
     openData, closeData, highData, lowData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -1695,7 +1697,7 @@ def alpha_107(stockList, dateList):
 def alpha_108(stockList, dateList):
     # ((RANK((HIGH - MIN(HIGH, 2)))^RANK(CORR((VWAP), (MEAN(VOLUME,120)), 6))) * -1)
     fields = 'high, volume, vwap'
-    offday = -126
+    offday = -126*factors_expand
 
     highData, volData, vwapData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -1709,7 +1711,7 @@ def alpha_108(stockList, dateList):
 def alpha_109(stockList, dateList):
     # SMA(HIGH-LOW,10,2)/SMA(SMA(HIGH-LOW,10,2),10,2)
     fields = 'high, low'
-    offday = -20
+    offday = -20*factors_expand
 
     highData, lowData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -1723,7 +1725,7 @@ def alpha_109(stockList, dateList):
 def alpha_110(stockList, dateList):
     # SUM(MAX(0,HIGH-DELAY(CLOSE,1)),20)/SUM(MAX(0,DELAY(CLOSE,1)-LOW),20)*100
     fields = 'close, high, low'
-    offday = -21
+    offday = -21*factors_expand
 
     closeData, highData, lowData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -1739,7 +1741,7 @@ def alpha_110(stockList, dateList):
 def alpha_111(stockList, dateList):
     # SMA(VOL*((CLOSE-LOW)-(HIGH-CLOSE))/(HIGH-LOW),11,2)-SMA(VOL*((CLOSE-LOW)-(HIGH-CLOSE))/(HIGH-LOW),4,2)
     fields = 'close, high, low, volume'
-    offday = -11
+    offday = -11*factors_expand
 
     closeData, highData, lowData, volData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -1756,7 +1758,7 @@ def alpha_112(stockList, dateList):
     # -DELAY(CLOSE,1)):0),12))/(SUM((CLOSE-DELAY(CLOSE,1)>0?CLOSE-DELAY(CLOSE,1):0),12)+SUM((CLOSE-DE
     # LAY(CLOSE,1)<0?ABS(CLOSE-DELAY(CLOSE,1)):0),12))*100
     fields = 'close'
-    offday = -13
+    offday = -13*factors_expand
 
     closeData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -1775,7 +1777,7 @@ def alpha_112(stockList, dateList):
 def alpha_113(stockList, dateList):
     # (-1 * ((RANK((SUM(DELAY(CLOSE, 5), 20) / 20)) * CORR(CLOSE, VOLUME, 2)) * RANK(CORR(SUM(CLOSE, 5), SUM(CLOSE, 20), 2))))
     fields = 'close, volume'
-    offday = -25
+    offday = -25*factors_expand
 
     closeData, volData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -1790,7 +1792,7 @@ def alpha_113(stockList, dateList):
 def alpha_114(stockList, dateList):
     # ((RANK(DELAY(((HIGH - LOW) / (SUM(CLOSE, 5) / 5)), 2)) * RANK(RANK(VOLUME))) / (((HIGH - LOW) / (SUM(CLOSE, 5) / 5)) / (VWAP - CLOSE)))
     fields = 'close, high, low, volume, vwap'
-    offday = -7
+    offday = -7*factors_expand
 
     closeData, highData, lowData, volData, vwapData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -1805,7 +1807,7 @@ def alpha_114(stockList, dateList):
 def alpha_115(stockList, dateList):
     # (RANK(CORR(((HIGH * 0.9) + (CLOSE * 0.1)), MEAN(VOLUME,30), 10))^RANK(CORR(TSRANK(((HIGH + LOW) / 2), 4), TSRANK(VOLUME, 10), 7)))
     fields = 'close, high, low, volume'
-    offday = -40
+    offday = -40*factors_expand
 
     closeData, highData, lowData, volData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -1819,7 +1821,7 @@ def alpha_115(stockList, dateList):
 def alpha_116(stockList, dateList):
     # REGBETA(CLOSE,SEQUENCE,20)
     fields = 'close'
-    offday = -20
+    offday = -20*factors_expand
 
     closeData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -1831,7 +1833,7 @@ def alpha_116(stockList, dateList):
 def alpha_117(stockList, dateList):
     # ((TSRANK(VOLUME, 32) * (1 - TSRANK(((CLOSE + HIGH) - LOW), 16))) * (1 - TSRANK(RET, 32)))
     fields = 'close, high, low, volume, p_change '
-    offday = -32
+    offday = -32*factors_expand
 
     closeData, highData, lowData, volData, retData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -1846,7 +1848,7 @@ def alpha_117(stockList, dateList):
 def alpha_118(stockList, dateList):
     # SUM(HIGH-OPEN,20)/SUM(OPEN-LOW,20)*100
     fields = 'open, high, low'
-    offday = -20
+    offday = -20*factors_expand
 
     openData, highData, lowData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -1861,7 +1863,7 @@ def alpha_119(stockList, dateList):
     # (RANK(DECAYLINEAR(CORR(VWAP, SUM(MEAN(VOLUME,5), 26), 5), 7)) -
     # RANK(DECAYLINEAR(TSRANK(MIN(CORR(RANK(OPEN), RANK(MEAN(VOLUME,15)), 21), 9), 7), 8)))
     fields = 'open, volume, vwap'
-    offday = -60
+    offday = -60*factors_expand
 
     openData, volData, vwapData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -1879,7 +1881,7 @@ def alpha_119(stockList, dateList):
 def alpha_120(stockList, dateList):
     # (RANK((VWAP - CLOSE)) / RANK((VWAP + CLOSE)))预处理数据
     fields = 'close, vwap'
-    offday = -0
+    offday = -0*factors_expand
 
     closeData, vwapData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -1891,7 +1893,7 @@ def alpha_120(stockList, dateList):
 def alpha_121(stockList, dateList):
     # ((RANK((VWAP - MIN(VWAP, 12)))^TSRANK(CORR(TSRANK(VWAP, 20), TSRANK(MEAN(VOLUME,60), 2), 18), 3)) * -1)
     fields = 'volume ,vwap'
-    offday = -83
+    offday = -83*factors_expand
 
     volData, vwapData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -1907,7 +1909,7 @@ def alpha_122(stockList, dateList):
     # (SMA(SMA(SMA(LOG(CLOSE),13,2),13,2),13,2)-DELAY(SMA(SMA(SMA(LOG(CLOSE),
     # 13,2),13,2),13,2),1))/DELAY(SMA(SMA(SMA(LOG(CLOSE),13,2),13,2),13,2),1)
     fields = 'close'
-    offday = -40
+    offday = -40*factors_expand
 
     closeData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -1921,7 +1923,7 @@ def alpha_122(stockList, dateList):
 def alpha_123(stockList, dateList):
     # ((RANK(CORR(SUM(((HIGH + LOW) / 2), 20), SUM(MEAN(VOLUME,60), 20), 9)) < RANK(CORR(LOW, VOLUME, 6))) * -1)
     fields = 'high, low, volume'
-    offday = -90
+    offday = -90*factors_expand
 
     highData, lowData, volData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -1938,7 +1940,7 @@ def alpha_123(stockList, dateList):
 def alpha_124(stockList, dateList):
     # (CLOSE - VWAP) / DECAYLINEAR(RANK(TSMAX(CLOSE, 30)),2)
     fields = 'close, vwap'
-    offday = -32
+    offday = -32*factors_expand
 
     closeData, vwapData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -1953,7 +1955,7 @@ def alpha_125(stockList, dateList):
     # (RANK(DECAYLINEAR(CORR((VWAP), MEAN(VOLUME,80),17), 20)) /
     # RANK(DECAYLINEAR(DELTA(((CLOSE * 0.5) + (VWAP * 0.5)), 3), 16)))
     fields = 'close, volume, vwap'
-    offday = -117
+    offday = -117*factors_expand
 
     closeData, volData, vwapData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -1969,7 +1971,7 @@ def alpha_125(stockList, dateList):
 def alpha_126(stockList, dateList):
     # (CLOSE+HIGH+LOW)/3
     fields = 'close, high, low'
-    offday = 0
+    offday = 0*factors_expand
 
     closeData, highData, lowData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -1981,7 +1983,7 @@ def alpha_126(stockList, dateList):
 def alpha_127(stockList, dateList):
     # (MEAN((100*(CLOSE-TSMAX(CLOSE,12))/(TSMAX(CLOSE,12)))^2, 12))^(1/2)
     fields = 'close'
-    offday = -24
+    offday = -24*factors_expand
 
     closeData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -1996,7 +1998,7 @@ def alpha_128(stockList, dateList):
     # (HIGH+LOW+CLOSE)/3*VOLUME:0),14)/SUM(((HIGH+LOW+CLOSE)/3<DELAY((HIGH+LOW+CLOSE)/3,1)?
     # (HIGH+LOW+CLOSE)/3*VOLUME:0),14)))
     fields = 'close, high, low, volume'
-    offday = -20
+    offday = -20*factors_expand
 
     closeData, highData, lowData, volData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -2014,7 +2016,7 @@ def alpha_128(stockList, dateList):
 def alpha_129(stockList, dateList):
     # SUM((CLOSE-DELAY(CLOSE,1)<0?ABS(CLOSE-DELAY(CLOSE,1)):0),12)
     fields = 'close'
-    offday = -13
+    offday = -13*factors_expand
 
     closeData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -2029,7 +2031,7 @@ def alpha_130(stockList, dateList):
     # (RANK(DECAYLINEAR(CORR(((HIGH + LOW) / 2), MEAN(VOLUME,40), 9), 10)) /
     # RANK(DECAYLINEAR(CORR(RANK(VWAP), RANK(VOLUME), 7),3)))
     fields = 'high, low, volume, vwap'
-    offday = -60
+    offday = -60*factors_expand
 
     highData, lowData, volData, vwapData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -2043,7 +2045,7 @@ def alpha_130(stockList, dateList):
 def alpha_131(stockList, dateList):
     # (RANK(DELAT(VWAP, 1))^TSRANK(CORR(CLOSE,MEAN(VOLUME,50), 18), 18))
     fields = 'close, volume,  vwap'
-    offday = -86
+    offday = -86*factors_expand
 
     closeData, volData, vwapData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -2057,7 +2059,7 @@ def alpha_131(stockList, dateList):
 def alpha_132(stockList, dateList):
     # MEAN(AMOUNT,20)
     fields = 'amount'
-    offday = -20
+    offday = -20*factors_expand
 
     amountData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -2069,7 +2071,7 @@ def alpha_132(stockList, dateList):
 def alpha_133(stockList, dateList):
     # ((20-HIGHDAY(HIGH,20))/20)*100-((20-LOWDAY(LOW,20))/20)*100
     fields = 'high, low'
-    offday = -20
+    offday = -20*factors_expand
 
     highData, lowData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -2081,7 +2083,7 @@ def alpha_133(stockList, dateList):
 def alpha_134(stockList, dateList):
     # (CLOSE-DELAY(CLOSE,12))/DELAY(CLOSE,12)*VOLUME
     fields = 'close, volume'
-    offday = -12
+    offday = -12*factors_expand
 
     closeData, volData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -2093,7 +2095,7 @@ def alpha_134(stockList, dateList):
 def alpha_135(stockList, dateList):
     # SMA(DELAY(CLOSE/DELAY(CLOSE,20),1),20,1)
     fields = 'close'
-    offday = -42
+    offday = -42*factors_expand
 
     closeData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -2105,7 +2107,7 @@ def alpha_135(stockList, dateList):
 def alpha_136(stockList, dateList):
     # ((-1 * RANK(DELTA(RET, 3))) * CORR(OPEN, VOLUME, 10))
     fields = 'open, volume, p_change'
-    offday = -20
+    offday = -20*factors_expand
 
     openData, volData, retData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -2124,7 +2126,7 @@ def alpha_137(stockList, dateList):
 	# SE,1))/2+ABS(DELAY(CLOSE,1)-DELAY(OPEN,1))/4:ABS(HIGH-DELAY(LOW,1))+ABS(DELAY(CLOSE,1)-DELAY(OP
 	#EN,1))/4)))*MAX(ABS(HIGH-DELAY(CLOSE,1)),ABS(LOW-DELAY(CLOSE,1)))
     fields = 'open, close, high, low'
-    offday = -1
+    offday = -1*factors_expand
 
     openData, closeData, highData, lowData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -2157,7 +2159,7 @@ def alpha_138(stockList, dateList):
     # ((RANK(DECAYLINEAR(DELTA((((LOW * 0.7) + (VWAP *0.3))), 3), 20)) -
     # TSRANK(DECAYLINEAR(TSRANK(CORR(TSRANK(LOW, 8), TSRANK(MEAN(VOLUME,60), 17), 5), 19), 16), 7)) * -1)
     fields = 'low, volume, vwap'
-    offday = -124
+    offday = -124*factors_expand
 
     lowData, volData, vwapData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -2174,7 +2176,7 @@ def alpha_138(stockList, dateList):
 def alpha_139(stockList, dateList):
     # (-1 * CORR(OPEN, VOLUME, 10))
     fields = 'open, volume'
-    offday = -10
+    offday = -10*factors_expand
 
     openData, volData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -2187,7 +2189,7 @@ def alpha_140(stockList, dateList):
     # MIN(RANK(DECAYLINEAR(((RANK(OPEN) + RANK(LOW)) - (RANK(HIGH) + RANK(CLOSE))), 8)),
     # TSRANK(DECAYLINEAR(CORR(TSRANK(CLOSE, 8), TSRANK(MEAN(VOLUME,60), 20), 8), 7), 3))
     fields = 'open, close, high, low, volume'
-    offday = -98
+    offday = -98*factors_expand
 
     openData, closeData, highData, lowData, volData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -2202,7 +2204,7 @@ def alpha_140(stockList, dateList):
 def alpha_141(stockList, dateList):
     # (RANK(CORR(RANK(HIGH), RANK(MEAN(VOLUME,15)), 9))* -1)
     fields = 'high, volume'
-    offday = -24
+    offday = -24*factors_expand
 
     highData, volData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -2214,7 +2216,7 @@ def alpha_141(stockList, dateList):
 def alpha_142(stockList, dateList):
     # (((-1 * RANK(TSRANK(CLOSE, 10))) * RANK(DELTA(DELTA(CLOSE, 1), 1))) * RANK(TSRANK((VOLUME/MEAN(VOLUME,20)), 5)))
     fields = 'close, volume'
-    offday = -25
+    offday = -25*factors_expand
 
     closeData, volData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -2229,7 +2231,7 @@ def alpha_142(stockList, dateList):
 def alpha_143(stockList, dateList):
     # CLOSE>DELAY(CLOSE,1)?(CLOSE-DELAY(CLOSE,1))/DELAY(CLOSE,1)*SELF:SELF
     fields = 'close'
-    offday = -1
+    offday = -1*factors_expand
 
     closeData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -2242,7 +2244,7 @@ def alpha_143(stockList, dateList):
 def alpha_144(stockList, dateList):
     # SUMIF(ABS(CLOSE/DELAY(CLOSE,1)-1)/AMOUNT,20,CLOSE<DELAY(CLOSE,1))/COUNT(CLOSE<DELAY(CLOSE,1),20)
     fields = 'close, amount'
-    offday = -21
+    offday = -21*factors_expand
 
     closeData, amountData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -2258,7 +2260,7 @@ def alpha_144(stockList, dateList):
 def alpha_145(stockList, dateList):
     # (MEAN(VOLUME,9)-MEAN(VOLUME,26))/MEAN(VOLUME,12)*100
     fields = 'volume'
-    offday = -26
+    offday = -26*factors_expand
 
     volData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -2273,7 +2275,7 @@ def alpha_146(stockList, dateList):
     # E-DELAY(CLOSE,1))/DELAY(CLOSE,1)-((CLOSE-DELAY(CLOSE,1))/DELAY(CLOSE,1)-SMA((CLOSE-DELAY(CLOSE,
     # 1))/DELAY(CLOSE,1),61,2)))^2,60)
     fields = 'p_change'
-    offday = -150
+    offday = -150*factors_expand
 
     pchData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -2289,7 +2291,7 @@ def alpha_146(stockList, dateList):
 def alpha_147(stockList, dateList):
     # REGBETA(MEAN(CLOSE,12),SEQUENCE(12))
     fields = 'close'
-    offday = -24
+    offday = -24*factors_expand
 
     closeData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -2301,7 +2303,7 @@ def alpha_147(stockList, dateList):
 def alpha_148(stockList, dateList):
     # ((RANK(CORR((OPEN), SUM(MEAN(VOLUME,60), 9), 6)) < RANK((OPEN - TSMIN(OPEN, 14)))) * -1)
     fields = 'open, volume'
-    offday = -75
+    offday = -75*factors_expand
 
     openData, volData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -2318,7 +2320,7 @@ def alpha_149(stockList, dateList):
     # ),FILTER(BANCHMARKINDEXCLOSE/DELAY(BANCHMARKINDEXCLOSE,1)-1,BANCHMARKINDEXCLOSE<DELA
     # Y(BANCHMARKINDEXCLOSE,1)),252)
     fields = 'close'
-    offday = -250
+    offday = -250*factors_expand
 
     closeData = generateDataFrame(stockList, dateList, fields, offday)
     marketClose = closeData.mean(axis=1)
@@ -2343,7 +2345,7 @@ def alpha_149(stockList, dateList):
 def alpha_150(stockList, dateList):
     # (CLOSE+HIGH+LOW)/3*VOLUME
     fields = 'close, high, low, volume'
-    offday = 0
+    offday = 0*factors_expand
 
     closeData, highData, lowData, volData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -2355,7 +2357,7 @@ def alpha_150(stockList, dateList):
 def alpha_151(stockList, dateList):
     # SMA(CLOSE-DELAY(CLOSE,20),20,1)
     fields = 'close'
-    offday = -40
+    offday = -40*factors_expand
 
     closeData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -2368,7 +2370,7 @@ def alpha_152(stockList, dateList):
     # SMA(MEAN(DELAY(SMA(DELAY(CLOSE/DELAY(CLOSE,9),1),9,1),1),12)-MEAN(DELAY(SMA(DELAY(CLOSE/DELAY
     # (CLOSE,9),1),9,1),1),26),9,1)
     fields = 'close'
-    offday = -55
+    offday = -55*factors_expand
 
     closeData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -2383,7 +2385,7 @@ def alpha_152(stockList, dateList):
 def alpha_153(stockList, dateList):
     # (MEAN(CLOSE,3)+MEAN(CLOSE,6)+MEAN(CLOSE,12)+MEAN(CLOSE,24))/4
     fields = 'close'
-    offday = -24
+    offday = -24*factors_expand
 
     closeData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -2396,7 +2398,7 @@ def alpha_153(stockList, dateList):
 def alpha_154(stockList, dateList):
     # (((VWAP - MIN(VWAP, 16))) < (CORR(VWAP, MEAN(VOLUME,180), 18)))
     fields = 'volume, vwap'
-    offday = -198
+    offday = -198*factors_expand
 
     volData, vwapData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -2411,7 +2413,7 @@ def alpha_154(stockList, dateList):
 def alpha_155(stockList, dateList):
     # SMA(VOLUME,13,2)-SMA(VOLUME,27,2)-SMA(SMA(VOLUME,13,2)-SMA(VOLUME,27,2),10,2)
     fields = 'volume'
-    offday = -37
+    offday = -37*factors_expand
 
     volData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -2427,7 +2429,7 @@ def alpha_156(stockList, dateList):
     # (MAX(RANK(DECAYLINEAR(DELTA(VWAP, 5), 3)), RANK(DECAYLINEAR(((DELTA(((OPEN * 0.15) + (LOW *0.85)),
     # 2) / ((OPEN * 0.15) + (LOW * 0.85))) * -1), 3))) * -1)
     fields = 'open, low, vwap'
-    offday = -8
+    offday = -8*factors_expand
 
     openData, lowData, vwapData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -2443,7 +2445,7 @@ def alpha_157(stockList, dateList):
     # (MIN(PROD(RANK(RANK(LOG(SUM(TSMIN(RANK(RANK((-1 * RANK(DELTA((CLOSE - 1), 5))))), 2), 1)))), 1), 5) +
     # TSRANK(DELAY((-1 * RET), 6), 5))
     fields = 'close, p_change'
-    offday = -15
+    offday = -15*factors_expand
 
     closeData, retData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -2459,7 +2461,7 @@ def alpha_157(stockList, dateList):
 def alpha_158(stockList, dateList):
     # ((HIGH-SMA(CLOSE,15,2))-(LOW-SMA(CLOSE,15,2)))/CLOSE
     fields = 'close, high, low'
-    offday = -15
+    offday = -15*factors_expand
 
     closeData, highData, lowData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -2475,7 +2477,7 @@ def alpha_159(stockList, dateList):
     # OSE,1)),12)*6*24+(CLOSE-SUM(MIN(LOW,DELAY(CLOSE,1)),24))/SUM(MAX(HGIH,DELAY(CLOSE,1))-MIN(LOW,D
     # ELAY(CLOSE,1)),24)*6*24)*100/(6*12+6*24+12*24)
     fields = 'close, high, low'
-    offday = -25
+    offday = -25*factors_expand
 
     closeData, highData, lowData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -2500,7 +2502,7 @@ def alpha_159(stockList, dateList):
 def alpha_160(stockList, dateList):
     # SMA((CLOSE<=DELAY(CLOSE,1)?STD(CLOSE,20):0),20,1)
     fields = 'close'
-    offday = -40
+    offday = -40*factors_expand
 
     closeData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -2513,7 +2515,7 @@ def alpha_160(stockList, dateList):
 def alpha_161(stockList, dateList):
     # MEAN(MAX(MAX((HIGH-LOW),ABS(DELAY(CLOSE,1)-HIGH)),ABS(DELAY(CLOSE,1)-LOW)),12)
     fields = 'close, high, low'
-    offday = -13
+    offday = -13*factors_expand
 
     closeData, highData, lowData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -2533,7 +2535,7 @@ def alpha_162(stockList, dateList):
     # LOSE,1),0),12,1)/SMA(ABS(CLOSE-DELAY(CLOSE,1)),12,1)*100,12)-MIN(SMA(MAX(CLOSE-DELAY(CLOSE,1),0),12,
     # 1)/SMA(ABS(CLOSE-DELAY(CLOSE,1)),12,1)*100,12))
     fields = 'close'
-    offday = -25
+    offday = -25*factors_expand
 
     closeData = generateDataFrame(stockList, dateList, fields, offday)
     delta_1 = dfDelta(closeData, 1)
@@ -2553,7 +2555,7 @@ def alpha_162(stockList, dateList):
 def alpha_163(stockList, dateList):
     # RANK(((((-1 * RET) * MEAN(VOLUME,20)) * VWAP) * (HIGH - CLOSE)))
     fields = 'close, high, volume, vwap, p_change'
-    offday = -20
+    offday = -20*factors_expand
 
     closeData, highData, volData, vwapData, retData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -2566,7 +2568,7 @@ def alpha_164(stockList, dateList):
     # SMA((((CLOSE > DELAY(CLOSE, 1))?1 / (CLOSE - DELAY(CLOSE, 1)):1)-MIN(((CLOSE > DELAY(CLOSE, 1))?1 / (CLOSE - D
     # ELAY(CLOSE, 1)):1), 12)) / (HIGH - LOW) * 100, 13, 2)
     fields = 'close, high, low'
-    offday = -26
+    offday = -26*factors_expand
 
     closeData, highData, lowData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -2583,7 +2585,7 @@ def alpha_164(stockList, dateList):
 def alpha_165(stockList, dateList):
     # MAX(SUMAC(CLOSE-MEAN(CLOSE,48)))-MIN(SUMAC(CLOSE-MEAN(CLOSE,48)))/STD(CLOSE,48)
     fields = 'close'
-    offday = -96
+    offday = -96*factors_expand
 
     closeData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -2599,7 +2601,7 @@ def alpha_166(stockList, dateList):
     # -20* （ 20-1 ）^1.5*SUM(CLOSE/DELAY(CLOSE,1)-1-MEAN(CLOSE/DELAY(CLOSE,1)-1,20),20)
     # /((20-1)*(20-2)(SUM((CLOSE/DELAY(CLOSE,1),20)^2,20))^1.5)
     fields = 'close'
-    offday = -41
+    offday = -41*factors_expand
 
     closeData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -2614,7 +2616,7 @@ def alpha_166(stockList, dateList):
 def alpha_167(stockList, dateList):
     # SUM((CLOSE-DELAY(CLOSE,1)>0?CLOSE-DELAY(CLOSE,1):0),12)
     fields = 'close'
-    offday = -13
+    offday = -13*factors_expand
 
     closeData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -2628,7 +2630,7 @@ def alpha_167(stockList, dateList):
 def alpha_168(stockList, dateList):
     # (-1*VOLUME/MEAN(VOLUME,20))
     fields = 'volume'
-    offday = -20
+    offday = -20*factors_expand
 
     volData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -2640,7 +2642,7 @@ def alpha_168(stockList, dateList):
 def alpha_169(stockList, dateList):
     # SMA(MEAN(DELAY(SMA(CLOSE-DELAY(CLOSE,1),9,1),1),12)-MEAN(DELAY(SMA(CLOSE-DELAY(CLOSE,1),9,1),1),26),10,1)
     fields = 'close'
-    offday = -47
+    offday = -47*factors_expand
 
     closeData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -2654,7 +2656,7 @@ def alpha_170(stockList, dateList):
     # ((((RANK((1 / CLOSE)) * VOLUME) / MEAN(VOLUME,20)) * ((HIGH * RANK((HIGH - CLOSE))) / (SUM(HIGH, 5) /
     # 5))) - RANK((VWAP - DELAY(VWAP, 5))))
     fields = 'close, high, volume, vwap'
-    offday = -20
+    offday = -20*factors_expand
 
     closeData, highData, volData, vwapData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -2671,7 +2673,7 @@ def alpha_170(stockList, dateList):
 def alpha_171(stockList, dateList):
     # ((-1 * ((LOW - CLOSE) * (OPEN^5))) / ((CLOSE - HIGH) * (CLOSE^5)))
     fields = 'open,close, high, low'
-    offday = 0
+    offday = 0*factors_expand
 
     openData, closeData, highData, lowData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -2688,7 +2690,7 @@ def alpha_172(stockList, dateList):
     # HD>LD)?HD:0,14)*100/SUM(TR,14))*100,6)
 
     fields = 'close ,high ,low'
-    offday = -21
+    offday = -21*factors_expand
 
     # 创建dataframe数据
     closeData, highData, lowData = generateDataFrame(stockList, dateList, fields, offday)
@@ -2713,7 +2715,7 @@ def alpha_172(stockList, dateList):
 def alpha_173(stockList, dateList):
     # 3*SMA(CLOSE,13,2)-2*SMA(SMA(CLOSE,13,2),13,2)+SMA(SMA(SMA(LOG(CLOSE),13,2),13,2),13,2)
     fields = 'close'
-    offday = -40
+    offday = -40*factors_expand
 
     closeData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -2728,7 +2730,7 @@ def alpha_173(stockList, dateList):
 def alpha_174(stockList, dateList):
     # SMA((CLOSE>DELAY(CLOSE,1)?STD(CLOSE,20):0),20,1)
     fields = 'close'
-    offday = -40
+    offday = -40*factors_expand
 
     closeData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -2741,7 +2743,7 @@ def alpha_174(stockList, dateList):
 def alpha_175(stockList, dateList):
     # MEAN(MAX(MAX((HIGH-LOW),ABS(DELAY(CLOSE,1)-HIGH)),ABS(DELAY(CLOSE,1)-LOW)),6)
     fields = 'close, high, low'
-    offday = -7
+    offday = -7*factors_expand
 
     closeData, highData, lowData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -2755,7 +2757,7 @@ def alpha_175(stockList, dateList):
 def alpha_176(stockList, dateList):
     # CORR(RANK(((CLOSE - TSMIN(LOW, 12)) / (TSMAX(HIGH, 12) - TSMIN(LOW,12)))), RANK(VOLUME), 6)
     fields = 'close, high, low, volume'
-    offday = -18
+    offday = -18*factors_expand
 
     closeData, highData, lowData, volData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -2769,7 +2771,7 @@ def alpha_176(stockList, dateList):
 def alpha_177(stockList, dateList):
     # ((20-HIGHDAY(HIGH,20))/20)*100
     fields = 'high'
-    offday = -20
+    offday = -20*factors_expand
 
     highData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -2780,7 +2782,7 @@ def alpha_177(stockList, dateList):
 def alpha_178(stockList, dateList):
     # (CLOSE-DELAY(CLOSE,1))/DELAY(CLOSE,1)*VOLUME
     fields = 'close , volume'
-    offday = -1
+    offday = -1*factors_expand
 
     closeData, volData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -2792,7 +2794,7 @@ def alpha_178(stockList, dateList):
 def alpha_179(stockList, dateList):
     # (RANK(CORR(VWAP, VOLUME, 4)) *RANK(CORR(RANK(LOW), RANK(MEAN(VOLUME,50)), 12)))
     fields = 'low, volume, vwap'
-    offday = -62
+    offday = -62*factors_expand
 
     lowData, volData, vwapData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -2806,7 +2808,7 @@ def alpha_179(stockList, dateList):
 def alpha_180(stockList, dateList):
     # ((MEAN(VOLUME,20) < VOLUME) ? ((-1 * TSRANK(ABS(DELTA(CLOSE, 7)), 60)) * SIGN(DELTA(CLOSE, 7)) : (-1 * VOLUME)))
     fields = 'close, volume'
-    offday = -67
+    offday = -67*factors_expand
 
     closeData, volData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -2822,7 +2824,7 @@ def alpha_181(stockList, dateList):
     # SUM(((CLOSE/DELAY(CLOSE,1)-1)-MEAN((CLOSE/DELAY(CLOSE,1)-1),20))-(BANCHMARKINDEXCLOSE-MEAN(B
     # ANCHMARKINDEXCLOSE,20))^2,20)/SUM((BANCHMARKINDEXCLOSE-MEAN(BANCHMARKINDEXCLOSE,20))^2)
     fields = 'close'
-    offday = -42
+    offday = -42*factors_expand
 
     closeData = generateDataFrame(stockList, dateList, fields, offday)
     marketClose = closeData.mean(axis=1)
@@ -2841,7 +2843,7 @@ def alpha_182(stockList, dateList):
     # COUNT((CLOSE>OPEN & BANCHMARKINDEXCLOSE>BANCHMARKINDEXOPEN)OR(CLOSE<OPEN &
     # BANCHMARKINDEXCLOSE<BANCHMARKINDEXOPEN),20)/20
     fields = 'open, close'
-    offday = -20
+    offday = -20*factors_expand
 
     openData, closeData = generateDataFrame(stockList, dateList, fields, offday)
     marketOpen, marketClose = openData.mean(axis=1), closeData.mean(axis=1)
@@ -2857,7 +2859,7 @@ def alpha_182(stockList, dateList):
 def alpha_183(stockList, dateList):
     # MAX(SUMAC(CLOSE-MEAN(CLOSE,24)))-MIN(SUMAC(CLOSE-MEAN(CLOSE,24)))/STD(CLOSE,24)
     fields = 'close'
-    offday = -48
+    offday = -48*factors_expand
 
     closeData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -2872,7 +2874,7 @@ def alpha_183(stockList, dateList):
 def alpha_184(stockList, dateList):
     # (RANK(CORR(DELAY((OPEN - CLOSE), 1), CLOSE, 200)) + RANK((OPEN - CLOSE)))
     fields = 'open, close'
-    offday = -201
+    offday = -201*factors_expand
 
     openData, closeData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -2884,7 +2886,7 @@ def alpha_184(stockList, dateList):
 def alpha_185(stockList, dateList):
     # RANK((-1 * ((1 - (OPEN / CLOSE))^2)))
     fields = 'open, close'
-    offday = 0
+    offday = 0*factors_expand
 
     openData, closeData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -2900,7 +2902,7 @@ def alpha_186(stockList, dateList):
 	# LD>HD)?LD:0,14)*100/SUM(TR,14)-SUM((HD>0 & HD>LD)?HD:0,14)*100/SUM(TR,14))/(SUM((LD>0 &
 	# LD>HD)?LD:0,14)*100/SUM(TR,14)+SUM((HD>0 & HD>LD)?HD:0,14)*100/SUM(TR,14))*100,6),6))/2
     fields = 'close, high, low'
-    offday = -27
+    offday = -27*factors_expand
 
     closeData, highData, lowData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -2926,7 +2928,7 @@ def alpha_186(stockList, dateList):
 def alpha_187(stockList, dateList):
     # SUM((OPEN<=DELAY(OPEN,1)?0:MAX((HIGH-OPEN),(OPEN-DELAY(OPEN,1)))),20)
     fields = 'open, high'
-    offday = -21
+    offday = -21*factors_expand
 
     openData, highData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -2940,7 +2942,7 @@ def alpha_187(stockList, dateList):
 def alpha_188(stockList, dateList):
     # ((HIGH-LOW–SMA(HIGH-LOW,11,2))/SMA(HIGH-LOW,11,2))*100
     fields = 'high, low'
-    offday = -12
+    offday = -12*factors_expand
 
     highData, lowData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -2953,7 +2955,7 @@ def alpha_188(stockList, dateList):
 def alpha_189(stockList, dateList):
     # MEAN(ABS(CLOSE-MEAN(CLOSE,6)),6)
     fields = 'close'
-    offday = -12
+    offday = -12*factors_expand
 
     closeData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -2968,7 +2970,7 @@ def alpha_190(stockList, dateList):
 	# 1))/((COUNT((CLOSE/DELAY(CLOSE)-1<(CLOSE/DELAY(CLOSE,19))^(1/20)-1),20))*(SUMIF((CLOSE/DELAY(CLOS
 	# E)-1-((CLOSE/DELAY(CLOSE,19))^(1/20)-1))^2,20,CLOSE/DELAY(CLOSE)-1>(CLOSE/DELAY(CLOSE,19))^(1/20)-1))))
     fields = 'close'
-    offday = -40
+    offday = -40*factors_expand
 
     closeData = generateDataFrame(stockList, dateList, fields, offday)
 
@@ -2988,7 +2990,7 @@ def alpha_190(stockList, dateList):
 def alpha_191(stockList, dateList):
     # ((CORR(MEAN(VOLUME,20), LOW, 5) + ((HIGH + LOW) / 2)) - CLOSE)
     fields = 'close, high, low, volume'
-    offday = -25
+    offday = -25*factors_expand
 
     closeData, highData, lowData, volData = generateDataFrame(stockList, dateList, fields, offday)
 

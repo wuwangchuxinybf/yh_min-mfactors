@@ -18,7 +18,7 @@ import feather as ft
 #2018-01-16
 
 # 沪深300指数成分股
-code_HS300 = pd.read_excel(add_gene_file + 'data_mkt.xlsx',sheetname='HS300')
+code_HS300 = pd.read_excel(add_gene_file + 'index_stockcodes.xlsx',sheetname='HS300')
 stockList = list(code_HS300['code'][:])
 # 日数据太大，先进行预处理
 def possess_day():
@@ -32,9 +32,7 @@ def possess_day():
     return 0
 
 # 得到日期范围并创建trade_day.date文件：从2016-01-04 至 2018-01-15
-def creat_dateList():
-#    dateList_min = open('G:/short_period_mf/trade.date').read().split('\n')
-#    dateList_day = list(set(map(lambda x : x[:10],dateList_min)))    
+def creat_dateList():  
     marketData = pd.read_csv(add_day_file + 'marketData.csv')
     dateList_day = list(set(marketData['date']))
     dateList_day = list(map(lambda x : poss_date(x),dateList_day))
