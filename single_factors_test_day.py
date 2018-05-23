@@ -135,11 +135,11 @@ for frI in factors_return_IR:
     n = n+1
 # df结果如下：
 #  fore_days factors_return_mean  IR_mean
-#0         1             8.45121  1.49327
-#1         2             4.06837  1.19733
-#2         3             2.91028  1.67039
-#3         4             2.45544  2.25113
-#4         5             2.02355  2.36888
+#0         1             10.6764  1.65927
+#1         2             5.24474  1.38974
+#2         3             3.81729  1.99395
+#3         4             3.11387  2.54553
+#4         5             2.36323  2.54787
 
 # 第六步 找出五个预测期效果都比较好的因子  
 factors_return_IR = os.listdir(add_factor_freturn_IR)
@@ -160,7 +160,7 @@ for frI in factors_return_IR:
 df_score['score_res'] = df_score['score_1']+df_score['score_2']+df_score['score_3']\
                             +df_score['score_4']+df_score['score_5']
 df_score.sort_values(by='score_res',axis=0,ascending=False,inplace=True)
-df_score.to_csv(add_effecive_factors_day+'effecive_factors_day_20180523.csv',index=False)
+df_score.to_csv(add_effecive_factors_day+'effecive_factors_day.csv',index=False)
 
 
 
